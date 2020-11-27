@@ -53,14 +53,14 @@ RUN apk add --no-cache \
 
 # Install python runtime modules. We do this before copying the source code
 # such that these dependencies can be cached
-RUN mkdir -p /src/my_project_name
-COPY my_project_name/__init__.py /src/my_project_name/
-COPY README.md my-project-name /src/
+RUN mkdir -p /src/middleman
+COPY middleman/__init__.py /src/middleman/
+COPY README.md middleman.py /src/
 COPY setup.py /src/setup.py
 RUN pip install -e "/src/.[postgres]"
 
 # Now copy the source code
-COPY my_project_name/*.py /src/my_project_name/
+COPY middleman/*.py /src/middleman/
 COPY *.py /src/
 
 # Specify a volume that holds the config file, SQLite3 database,
@@ -68,4 +68,4 @@ COPY *.py /src/
 VOLUME ["/data"]
 
 # Start the app
-ENTRYPOINT ["my-project-name", "/data/config.yaml"]
+ENTRYPOINT ["middleman.py", "/data/config.yaml"]

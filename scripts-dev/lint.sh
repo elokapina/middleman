@@ -11,7 +11,7 @@ if [ $# -ge 1 ]
 then
     files=$*
   else
-    files="my_project_name my-project-name"
+    files="middleman middleman.py"
 fi
 
 echo "Linting these locations: $files"

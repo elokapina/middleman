@@ -2,8 +2,8 @@ import logging
 
 from nio import JoinError
 
-from my_project_name.bot_commands import Command
-from my_project_name.message_responses import Message
+from middleman.bot_commands import Command
+from middleman.message_responses import Message
 
 logger = logging.getLogger(__name__)
 

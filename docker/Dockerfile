@@ -58,9 +58,9 @@ RUN apk add --no-cache \
 # Install python runtime modules. We do this before copying the source code
 # such that these dependencies can be cached
 # This speeds up subsequent image builds when the source code is changed
-RUN mkdir -p /src/my_project_name
-COPY my_project_name/__init__.py /src/my_project_name/
-COPY README.md my-project-name /src/
+RUN mkdir -p /src/middleman
+COPY middleman/__init__.py /src/middleman/
+COPY README.md middleman.py /src/
 
 # Build the dependencies
 COPY setup.py /src/setup.py
@@ -68,7 +68,7 @@ RUN pip install --prefix="/python-libs" --no-warn-script-location "/src/.[postgr
 
 # Now copy the source code
 COPY *.py *.md /src/
-COPY my_project_name/*.py /src/my_project_name/
+COPY middleman/*.py /src/middleman/
 
 # And build the final module
 RUN pip install --prefix="/python-libs" --no-warn-script-location "/src/.[postgres]"
@@ -98,4 +98,4 @@ RUN apk add --no-cache \
 VOLUME ["/data"]
 
 # Start the bot
-ENTRYPOINT ["my-project-name", "/data/config.yaml"]
+ENTRYPOINT ["middleman.py", "/data/config.yaml"]

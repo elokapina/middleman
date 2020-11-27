@@ -14,9 +14,9 @@ from nio import (
     RoomMessageText,
 )
 
-from my_project_name.callbacks import Callbacks
-from my_project_name.config import Config
-from my_project_name.storage import Storage
+from middleman.callbacks import Callbacks
+from middleman.config import Config
+from middleman.storage import Storage
 
 logger = logging.getLogger(__name__)
 
