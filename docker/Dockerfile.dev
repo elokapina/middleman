@@ -55,7 +55,7 @@ RUN apk add --no-cache \
 # such that these dependencies can be cached
 RUN mkdir -p /src/middleman
 COPY middleman/__init__.py /src/middleman/
-COPY README.md middleman.py /src/
+COPY README.md middleman-bot /src/
 COPY setup.py /src/setup.py
 RUN pip install -e "/src/.[postgres]"
 
@@ -68,4 +68,4 @@ COPY *.py /src/
 VOLUME ["/data"]
 
 # Start the app
-ENTRYPOINT ["middleman.py", "/data/config.yaml"]
+ENTRYPOINT ["middleman-bot", "/data/config.yaml"]

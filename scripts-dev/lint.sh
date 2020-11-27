@@ -11,7 +11,7 @@ if [ $# -ge 1 ]
 then
     files=$*
   else
-    files="middleman middleman.py"
+    files="middleman middleman-bot"
 fi
 
 echo "Linting these locations: $files"

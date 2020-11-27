@@ -1,6 +1,6 @@
 # Docker
 
-The docker image will run middleman.py with a SQLite database and
+The docker image will run middleman-bot with a SQLite database and
 end-to-end encryption dependencies included. For larger deployments, a
 connection to a Postgres database backend is recommended.
 
@@ -44,7 +44,7 @@ differences:
   If using postgres, point to your postgres instance instead:
 
   ```
-  database: "postgres://username:password@postgres/middleman.py?sslmode=disable"
+  database: "postgres://username:password@postgres/middleman-bot?sslmode=disable"
   ```
 
   **Note:** a postgres container is defined in `docker-compose.yaml` for your convenience.
@@ -80,20 +80,20 @@ docker-compose up -d postgres
 Start the bot with:
 
 ```
-docker-compose up middleman.py
+docker-compose up middleman-bot
 ```
 
 This will run the bot and log the output to the terminal. You can instead run
 the container detached with the `-d` flag:
 
 ```
-docker-compose up -d middleman.py
+docker-compose up -d middleman-bot
 ```
 
 (Logs can later be accessed with the `docker logs` command).
 
 This will use the `latest` tag from
-[Docker Hub](https://hub.docker.com/somebody/middleman.py).
+[Docker Hub](https://hub.docker.com/somebody/middleman-bot).
 
 If you would rather run from the checked out code, you can use:
 
@@ -116,7 +116,7 @@ remove the option altogether to allow all addresses.
 To update the container, navigate to the bot's `docker` directory and run:
 
 ```
-docker-compose pull middleman.py
+docker-compose pull middleman-bot
 ```
 
 Then restart the bot.
@@ -124,26 +124,26 @@ Then restart the bot.
 ## Systemd
 
 A systemd service file is provided for your convenience at
-[middleman.py.service](middleman.py.service). The service uses
+[middleman-bot.service](middleman-bot.service). The service uses
 `docker-compose` to start and stop the bot.
 
-Copy the file to `/etc/systemd/system/middleman.py.service` and edit to
+Copy the file to `/etc/systemd/system/middleman-bot.service` and edit to
 match your setup. You can then start the bot with:
 
 ```
-systemctl start middleman.py
+systemctl start middleman-bot
 ```
 
 and stop it with:
 
 ```
-systemctl stop middleman.py
+systemctl stop middleman-bot
 ```
 
 To run the bot on system startup:
 
 ```
-systemctl enable middleman.py
+systemctl enable middleman-bot
 ```
 
 ## Building the image
@@ -152,5 +152,5 @@ To build a production image from source, use the following `docker build` comman
 from the repo's root:
 
 ```
-docker build -t somebody/middleman.py:latest -f docker/Dockerfile .
+docker build -t somebody/middleman-bot:latest -f docker/Dockerfile .
 ```

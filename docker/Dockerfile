@@ -60,7 +60,7 @@ RUN apk add --no-cache \
 # This speeds up subsequent image builds when the source code is changed
 RUN mkdir -p /src/middleman
 COPY middleman/__init__.py /src/middleman/
-COPY README.md middleman.py /src/
+COPY README.md middleman-bot /src/
 
 # Build the dependencies
 COPY setup.py /src/setup.py
@@ -98,4 +98,4 @@ RUN apk add --no-cache \
 VOLUME ["/data"]
 
 # Start the bot
-ENTRYPOINT ["middleman.py", "/data/config.yaml"]
+ENTRYPOINT ["middleman-bot", "/data/config.yaml"]

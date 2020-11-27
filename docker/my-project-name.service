@@ -3,11 +3,11 @@ Description=A matrix bot that does amazing things!
 
 [Service]
 Type=simple
-User=middleman.py
-Group=middleman.py
-WorkingDirectory=/path/to/middleman.py/docker
-ExecStart=/usr/bin/docker-compose up middleman.py
-ExecStop=/usr/bin/docker-compose stop middleman.py
+User=middleman-bot
+Group=middleman-bot
+WorkingDirectory=/path/to/middleman-bot/docker
+ExecStart=/usr/bin/docker-compose up middleman-bot
+ExecStop=/usr/bin/docker-compose stop middleman-bot
 RemainAfterExit=yes
 Restart=always
 RestartSec=3

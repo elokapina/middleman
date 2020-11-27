@@ -17,7 +17,7 @@ matrix:
   # If this device ID already exists, messages will be dropped silently in encrypted rooms
   device_id: ABCDEFGHIJ
   # What to name the logged in device
-  device_name: middleman.py
+  device_name: middleman-bot
 
 storage:
   # The database connection string

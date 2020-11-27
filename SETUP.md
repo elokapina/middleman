@@ -132,19 +132,19 @@ source env/bin/activate
 Then simply run the bot with:
 
 ```
-middleman.py
+middleman-bot
 ```
 
-You'll notice that "middleman.py" is scattered throughout the codebase. When
+You'll notice that "middleman-bot" is scattered throughout the codebase. When
 it comes time to modifying the code for your own purposes, you are expected to
-replace every instance of "middleman.py" and its variances with your own
+replace every instance of "middleman-bot" and its variances with your own
 project's name.
 
 By default, the bot will run with the config file at `./config.yaml`. However, an
 alternative relative or absolute filepath can be specified after the command:
 
 ```
-middleman.py other-config.yaml
+middleman-bot other-config.yaml
 ```
 
 ## Testing the bot works

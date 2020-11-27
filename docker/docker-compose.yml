@@ -8,8 +8,8 @@ volumes:
 
 services:
   # Runs from the latest release
-  middleman.py:
-    image: somebody/middleman.py
+  middleman-bot:
+    image: somebody/middleman-bot
     restart: always
     volumes:
       - data_volume:/data

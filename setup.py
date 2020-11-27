@@ -54,6 +54,6 @@ setup(
     ],
     long_description=long_description,
     long_description_content_type="text/markdown",
-    # Allow the user to run the bot with `middleman.py ...`
-    scripts=["my-project-name.py"],
+    # Allow the user to run the bot with `middleman-bot ...`
+    scripts=["middleman-bot"],
 )
