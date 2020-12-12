@@ -7,7 +7,7 @@ import logging
 # the version specified here.
 #
 # When a migration is performed, the `migration_version` table should be incremented.
-latest_migration_version = 0
+latest_migration_version = 1
 
 logger = logging.getLogger(__name__)
 
@@ -98,15 +98,22 @@ class Storage(object):
         """
         logger.debug("Checking for necessary database migrations...")
 
-        # if current_migration_version < 1:
-        #    logger.info("Migrating the database from v0 to v1...")
-        #
-        #    # Add new table, delete old ones, etc.
-        #
-        #    # Update the stored migration version
-        #    self._execute("UPDATE migration_version SET version = 1")
-        #
-        #    logger.info("Database migrated to v1")
+        if current_migration_version < 1:
+            logger.info("Migrating the database from v0 to v1...")
+
+            self._execute("""
+                CREATE TABLE messages (
+                    id INTEGER PRIMARY KEY autoincrement,
+                    event_id text constraint message_event_id_unique_idx unique,
+                    room_id text,
+                    sender text
+                )
+            """)
+
+            # Update the stored migration version
+            self._execute("UPDATE migration_version SET version = 1")
+
+            logger.info("Database migrated to v1")
 
     def _execute(self, *args):
         """A wrapper around cursor.execute that transforms placeholder ?'s to %s for postgres
