@@ -9,6 +9,7 @@ from nio import (
     AsyncClient,
     AsyncClientConfig,
     InviteMemberEvent,
+    JoinError,
     LocalProtocolError,
     LoginError,
     RoomMessageText,
@@ -17,6 +18,7 @@ from nio import (
 from middleman.callbacks import Callbacks
 from middleman.config import Config
 from middleman.storage import Storage
+from middleman.utils import with_ratelimit
 
 logger = logging.getLogger(__name__)
 
@@ -93,6 +95,14 @@ async def main():
                     return False
 
                 # Login succeeded!
+
+            # Join the management room or fail
+            response = await with_ratelimit(client, "join", config.management_room)
+            if type(response) == JoinError:
+                logger.fatal("Could not join the management room, aborting.")
+                return False
+            else:
+                logger.info(f"Management room membership is good")
 
             logger.info(f"Logged in as {config.user_id}")
             await client.sync_forever(timeout=30000, full_state=True)

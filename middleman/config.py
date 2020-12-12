@@ -98,6 +98,8 @@ class Config(object):
 
         self.command_prefix = self._get_cfg(["command_prefix"], default="!c") + " "
 
+        self.management_room = self._get_cfg(["middleman", "management_room"], required=True)
+
     def _get_cfg(
         self, path: List[str], default: Any = None, required: bool = True,
     ) -> Any:
