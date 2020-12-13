@@ -1,3 +1,4 @@
+import importlib
 import logging
 
 # The latest migration version of the database.
@@ -98,22 +99,21 @@ class Storage(object):
         """
         logger.debug("Checking for necessary database migrations...")
 
-        if current_migration_version < 1:
-            logger.info("Migrating the database from v0 to v1...")
+        while current_migration_version < latest_migration_version:
+            next_migration_version = current_migration_version + 1
+            logger.info(
+                f"Migrating the database from v{current_migration_version} to v{next_migration_version}...",
+            )
 
-            self._execute("""
-                CREATE TABLE messages (
-                    id INTEGER PRIMARY KEY autoincrement,
-                    event_id text constraint message_event_id_unique_idx unique,
-                    room_id text,
-                    sender text
-                )
-            """)
+            migration = importlib.import_module(f".migrations.{str(next_migration_version).rjust(3, '0')}", "middleman")
+            # noinspection PyUnresolvedReferences
+            migration.migrate(self)
 
             # Update the stored migration version
-            self._execute("UPDATE migration_version SET version = 1")
+            self._execute("UPDATE migration_version SET version = ?", (next_migration_version,))
 
-            logger.info("Database migrated to v1")
+            logger.info(f"Database migrated to v{next_migration_version}")
+            current_migration_version += 1
 
     def _execute(self, *args):
         """A wrapper around cursor.execute that transforms placeholder ?'s to %s for postgres
