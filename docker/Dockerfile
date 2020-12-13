@@ -58,7 +58,7 @@ RUN apk add --no-cache \
 # Install python runtime modules. We do this before copying the source code
 # such that these dependencies can be cached
 # This speeds up subsequent image builds when the source code is changed
-RUN mkdir -p /src/middleman
+RUN mkdir -p /src/middleman/migrations
 COPY middleman/__init__.py /src/middleman/
 COPY README.md middleman-bot /src/
 
@@ -69,6 +69,7 @@ RUN pip install --prefix="/python-libs" --no-warn-script-location "/src/.[postgr
 # Now copy the source code
 COPY *.py *.md /src/
 COPY middleman/*.py /src/middleman/
+COPY middleman/migrations/*.py /src/middleman/migrations/
 
 # And build the final module
 RUN pip install --prefix="/python-libs" --no-warn-script-location "/src/.[postgres]"
@@ -93,9 +94,12 @@ RUN apk add --no-cache \
     libpq \
     postgresql-dev
 
-# Specify a volume that holds the config file, SQLite3 database,
+# Specify a volume that holds the SQLite3 database,
 # and the matrix-nio store
 VOLUME ["/data"]
 
+# Specify a volume that holds the config file
+VOLUME ["/config"]
+
 # Start the bot
-ENTRYPOINT ["middleman-bot", "/data/config.yaml"]
+ENTRYPOINT ["middleman-bot", "/config/config.yaml"]
