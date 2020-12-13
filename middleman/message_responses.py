@@ -30,11 +30,16 @@ class Message(object):
         self.event = event
 
     async def process(self):
-        """Process and possibly respond to the message"""
-        if self.message_content.lower() == "hello world":
-            await self._hello_world()
+        """Store message metadata and relay to management room."""
+        self.store.store_message(
+            self.event.event_id,
+            self.room.room_id,
+            self.event.sender,
+        )
+        await self.relay_to_management_room()
 
-    async def _hello_world(self):
-        """Say hello"""
-        text = "Hello, world!"
-        await send_text_to_room(self.client, self.room.room_id, text)
+    async def relay_to_management_room(self):
+        """Relay to the management room."""
+        room_identifier = self.room.canonical_alias or self.room.room_id
+        text = f"{self.event.sender} in {room_identifier}: <i>{self.message_content}</i>"
+        await send_text_to_room(self.client, self.config.management_room, text)

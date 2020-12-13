@@ -122,3 +122,8 @@ class Storage(object):
             self.cursor.execute(args[0].replace("?", "%s"), *args[1:])
         else:
             self.cursor.execute(*args)
+
+    def store_message(self, event_id: str, room_id: str, sender: str):
+        self._execute("""
+            insert into messages (event_id, room_id, sender) values (?, ?, ?)
+        """, (event_id, room_id, sender))
