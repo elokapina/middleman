@@ -139,5 +139,5 @@ class Storage(object):
 
     def store_message(self, event_id: str, management_event_id: str, room_id: str, sender: str):
         self._execute("""
-            insert into messages (event_id, manegement_event_id, room_id, sender) values (?, ?, ?, ?)
+            insert into messages (event_id, management_event_id, room_id, sender) values (?, ?, ?, ?)
         """, (event_id, management_event_id, room_id, sender))
