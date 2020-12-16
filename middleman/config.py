@@ -99,6 +99,7 @@ class Config(object):
         self.command_prefix = self._get_cfg(["command_prefix"], default="!c") + " "
 
         self.management_room = self._get_cfg(["middleman", "management_room"], required=True)
+        self.management_room_id = self.management_room if self.management_room.startswith("!") else None
 
     def _get_cfg(
         self, path: List[str], default: Any = None, required: bool = True,
