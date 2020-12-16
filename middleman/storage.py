@@ -1,6 +1,8 @@
 import importlib
 import logging
 
+from typing import Optional
+
 # The latest migration version of the database.
 #
 # Database migrations are applied starting from the number specified in the database's
@@ -8,7 +10,7 @@ import logging
 # the version specified here.
 #
 # When a migration is performed, the `migration_version` table should be incremented.
-latest_migration_version = 1
+latest_migration_version = 2
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +36,7 @@ class Storage(object):
 
         # Try to check the current migration version
         migration_level = 0
+        # noinspection PyBroadException
         try:
             self._execute("SELECT version FROM migration_version")
             row = self.cursor.fetchone()
@@ -46,13 +49,15 @@ class Storage(object):
 
         logger.info(f"Database initialization of type '{self.db_type}' complete")
 
-    def _get_database_connection(self, database_type: str, connection_string: str):
+    @staticmethod
+    def _get_database_connection(database_type: str, connection_string: str):
         if database_type == "sqlite":
             import sqlite3
 
             # Initialize a connection to the database, with autocommit on
             return sqlite3.connect(connection_string, isolation_level=None)
         elif database_type == "postgres":
+            # noinspection PyUnresolvedReferences
             import psycopg2
 
             conn = psycopg2.connect(connection_string)
@@ -123,7 +128,16 @@ class Storage(object):
         else:
             self.cursor.execute(*args)
 
-    def store_message(self, event_id: str, room_id: str, sender: str):
+    def get_message_by_management_event_id(self, management_event_id: str) -> Optional[dict]:
+        self._execute("SELECT room_id, event_id FROM messages where management_event_id = ?", (management_event_id,))
+        row = self.cursor.fetchone()
+        if row:
+            return {
+                "room_id": row[0],
+                "event_id": row[1],
+            }
+
+    def store_message(self, event_id: str, management_event_id: str, room_id: str, sender: str):
         self._execute("""
-            insert into messages (event_id, room_id, sender) values (?, ?, ?)
-        """, (event_id, room_id, sender))
+            insert into messages (event_id, manegement_event_id, room_id, sender) values (?, ?, ?, ?)
+        """, (event_id, management_event_id, room_id, sender))
