@@ -9,6 +9,9 @@ import yaml
 from middleman.errors import ConfigError
 
 logger = logging.getLogger()
+logging.getLogger("peewee").setLevel(
+    logging.INFO
+)  # Prevent debug messages from peewee lib
 
 
 class Config(object):
@@ -73,7 +76,7 @@ class Config(object):
         if database_path.startswith(sqlite_scheme):
             self.database = {
                 "type": "sqlite",
-                "connection_string": database_path[len(sqlite_scheme) :],
+                "connection_string": database_path[len(sqlite_scheme):],
             }
         elif database_path.startswith(postgres_scheme):
             self.database = {"type": "postgres", "connection_string": database_path}
