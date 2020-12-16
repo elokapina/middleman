@@ -1,14 +1,16 @@
 import logging
+from typing import Optional
 
 from markdown import markdown
-from nio import SendRetryError
+# noinspection PyPackageRequirements
+from nio import SendRetryError, RoomSendResponse
+
+from middleman.utils import with_ratelimit
 
 logger = logging.getLogger(__name__)
 
 
-async def send_text_to_room(
-    client, room_id, message, notice=True, markdown_convert=True
-):
+async def send_text_to_room(client, room_id, message, notice=True, markdown_convert=True) -> Optional[RoomSendResponse]:
     """Send text to a matrix room
 
     Args:
@@ -37,8 +39,13 @@ async def send_text_to_room(
         content["formatted_body"] = markdown(message)
 
     try:
-        await client.room_send(
-            room_id, "m.room.message", content, ignore_unverified_devices=True,
+        return await with_ratelimit(
+            client,
+            "room_send",
+            room_id,
+            "m.room.message",
+            content,
+            ignore_unverified_devices=True,
         )
     except SendRetryError:
         logger.exception(f"Unable to send message response to {room_id}")
