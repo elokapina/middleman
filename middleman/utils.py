@@ -10,7 +10,7 @@ def get_in_reply_to(event: nio.Event) -> Optional[str]:
     """
     Pulls an in reply to event ID from an event, if any.
     """
-    return event.source.get("m.relates_to", {}).get("m.in_reply_to", {}).get("event_id")
+    return event.source.get("content", {}).get("m.relates_to", {}).get("m.in_reply_to", {}).get("event_id")
 
 
 async def with_ratelimit(client, method, *args, **kwargs):
