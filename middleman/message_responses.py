@@ -35,16 +35,18 @@ class Message(object):
 
     async def handle_management_room_message(self):
         reply_to = get_in_reply_to(self.event)
-        if reply_to and self.message_content.startswith("reply:"):
+        if reply_to and self.message_content.find("!reply ") > -1:
             # Send back to original sender
             room = self.store.get_message_by_management_event_id(reply_to)
             if room:
                 # Relay back to original sender
+                # Send back anything after !reply
+                reply_starts = self.message_content.index("!reply")
+                reply_text = self.message_content[reply_starts + 7:]
                 await send_text_to_room(
                     self.client,
                     room["room_id"],
-                    # Remove the 'reply:' and trim
-                    self.message_content[6:].strip(),
+                    reply_text,
                 )
                 # Confirm in management room
                 await send_text_to_room(
