@@ -87,7 +87,7 @@ async def main():
                     # Check if login failed
                     if type(login_response) == LoginError:
                         logger.error("Failed to login: %s", login_response.message)
-                        return False
+                        break
                 except LocalProtocolError as e:
                     # There's an edge case here where the user hasn't installed the correct C
                     # dependencies. In that case, a LocalProtocolError is raised on login.
@@ -97,7 +97,7 @@ async def main():
                         "Error: %s",
                         e,
                     )
-                    return False
+                    break
 
                 # Login succeeded!
 
@@ -105,7 +105,7 @@ async def main():
             response = await with_ratelimit(client, "join", config.management_room)
             if type(response) == JoinError:
                 logger.fatal("Could not join the management room, aborting.")
-                return False
+                break
             else:
                 logger.info(f"Management room membership is good")
 
@@ -117,7 +117,7 @@ async def main():
                     config.management_room_id = response.room_id
                 else:
                     logger.fatal("Could not resolve the management room ID from alias, aborting")
-                    return False
+                    break
 
             logger.info(f"Logged in as {config.user_id}")
             await client.sync_forever(timeout=30000, full_state=True)
