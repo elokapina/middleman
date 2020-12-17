@@ -5,6 +5,7 @@ from nio import JoinError
 
 from middleman.bot_commands import Command
 from middleman.message_responses import Message
+from middleman.utils import with_ratelimit
 
 logger = logging.getLogger(__name__)
 
@@ -63,19 +64,8 @@ class Callbacks(object):
         """Callback for when an invite is received. Join the room specified in the invite"""
         logger.debug(f"Got invite to {room.room_id} from {event.sender}.")
 
-        # Attempt to join 3 times before giving up
-        for attempt in range(3):
-            result = await self.client.join(room.room_id)
-            if type(result) == JoinError:
-                logger.error(
-                    f"Error joining room {room.room_id} (attempt %d): %s",
-                    attempt,
-                    result.message,
-                )
-            else:
-                break
-        else:
+        result = await with_ratelimit(self.client, "join", room.room_id)
+        if type(result) == JoinError:
             logger.error("Unable to join room: %s", room.room_id)
-
-        # Successfully joined room
-        logger.info(f"Joined {room.room_id}")
+        else:
+            logger.info(f"Joined {room.room_id}")
