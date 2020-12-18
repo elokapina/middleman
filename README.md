@@ -10,6 +10,7 @@ Features:
 
 * Management room to receive messages to the bot
 * Replies to messages by replying to them with a `!reply` command and the intended reply
+* Sender messages can be configured as anonymous
 
 ## Running
 

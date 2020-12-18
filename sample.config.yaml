@@ -25,6 +25,10 @@ middleman:
   # Management room where proxied messages are sent and where actions are taken
   # Can be an alias or room ID. Middleman must be able to join it on startup.
   management_room: "!1234567:example.com"
+  # Anonymous senders
+  # If set to true, relayed messages to management room will not contain
+  # any sender information.
+  anonymise_senders: false
 
 storage:
   # The database connection string

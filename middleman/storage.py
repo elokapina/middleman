@@ -10,7 +10,7 @@ from typing import Optional
 # the version specified here.
 #
 # When a migration is performed, the `migration_version` table should be incremented.
-latest_migration_version = 2
+latest_migration_version = 3
 
 logger = logging.getLogger(__name__)
 
@@ -137,7 +137,7 @@ class Storage(object):
                 "event_id": row[1],
             }
 
-    def store_message(self, event_id: str, management_event_id: str, room_id: str, sender: str):
+    def store_message(self, event_id: str, management_event_id: str, room_id: str):
         self._execute("""
-            insert into messages (event_id, management_event_id, room_id, sender) values (?, ?, ?, ?)
-        """, (event_id, management_event_id, room_id, sender))
+            insert into messages (event_id, management_event_id, room_id) values (?, ?, ?)
+        """, (event_id, management_event_id, room_id))

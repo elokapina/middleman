@@ -48,11 +48,15 @@ class Message(object):
                     room["room_id"],
                     reply_text,
                 )
+                if self.config.anonymise_senders:
+                    management_room_text = "Message delivered back to the sender."
+                else:
+                    management_room_text = f"Message delivered back to the sender in room {room['room_id']}."
                 # Confirm in management room
                 await send_text_to_room(
                     self.client,
                     self.room.room_id,
-                    f"Message delivered back to the sender in room {room['room_id']}.",
+                    management_room_text,
                 )
                 logger.info(f"Message {self.event.event_id} relayed back to the original sender")
             else:
@@ -76,14 +80,16 @@ class Message(object):
     async def relay_to_management_room(self):
         """Relay to the management room."""
         room_identifier = self.room.canonical_alias or self.room.room_id
-        text = f"{self.event.sender} in {room_identifier}: <i>{self.message_content}</i>"
+        if self.config.anonymise_senders:
+            text = f"anonymous: <i>{self.message_content}</i>"
+        else:
+            text = f"{self.event.sender} in {room_identifier}: <i>{self.message_content}</i>"
         response = await send_text_to_room(self.client, self.config.management_room, text)
         if type(response) == RoomSendResponse and response.event_id:
             self.store.store_message(
                 self.event.event_id,
                 response.event_id,
                 self.room.room_id,
-                self.event.sender,
             )
             logger.info(f"Message {self.event.event_id} relayed to the management room")
         else:
