@@ -3,7 +3,7 @@
 # Default values are shown
 
 # The string to prefix messages with to talk to the bot in group chats
-command_prefix: "!c"
+command_prefix: "!middleman"
 
 # Options for connecting to the bot's Matrix account
 matrix:
