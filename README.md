@@ -8,9 +8,10 @@ Matrix bot to act as a middleman. Useful as a feedback bot or for support purpos
 
 Features:
 
-* Management room to receive messages to the bot
-* Replies to messages by replying to them with a `!reply` command and the intended reply
+* Messages to bot are relayed to management room
+* Management room users can reply by replying to the messages prefixing with `!reply`
 * Sender messages can be configured as anonymous
+* Configurable welcome message when bot is invited to a room
 
 ## Running
 
@@ -41,7 +42,7 @@ will be relayed to.
 Normal discussion can happen in the management room. Only replies prefixed with `!reply` will be relayed
 back to the room it came from.
 
-Currently messages relayed between the rooms are limited to plain text. Images and
+Currently, messages relayed between the rooms are limited to plain text. Images and
 other non-text messages will not currently be relayed either way.
 
 ## Development

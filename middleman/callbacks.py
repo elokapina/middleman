@@ -4,6 +4,7 @@ import logging
 from nio import JoinError
 
 from middleman.bot_commands import Command
+from middleman.chat_functions import send_text_to_room
 from middleman.message_responses import Message
 from middleman.utils import with_ratelimit
 
@@ -67,5 +68,9 @@ class Callbacks(object):
         result = await with_ratelimit(self.client, "join", room.room_id)
         if type(result) == JoinError:
             logger.error("Unable to join room: %s", room.room_id)
-        else:
-            logger.info(f"Joined {room.room_id}")
+            return
+
+        logger.info(f"Joined {room.room_id}")
+
+        if self.config.welcome_message:
+            await send_text_to_room(self.client, room.room_id, self.config.welcome_message)

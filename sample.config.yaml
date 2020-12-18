@@ -22,13 +22,19 @@ matrix:
   device_name: middleman-bot
 
 middleman:
-  # Management room where proxied messages are sent and where actions are taken
+  # Management room where proxied messages are sent and where actions are taken.
   # Can be an alias or room ID. Middleman must be able to join it on startup.
   management_room: "!1234567:example.com"
   # Anonymous senders
   # If set to true, relayed messages to management room will not contain
   # any sender information.
   anonymise_senders: false
+  # Welcome message which is sent to anyone inviting Middleman to a room.
+  # Comment out to disable sending any message.
+  welcome_message: |
+    Hello! I'm Middleman, a bot. I will relay your message forward to the maintainers of this
+    bot. When they reply, you will see the message here. Ps. Sorry, images are not currently
+    supported, text only please!
 
 storage:
   # The database connection string
