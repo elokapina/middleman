@@ -72,5 +72,9 @@ class Callbacks(object):
 
         logger.info(f"Joined {room.room_id}")
 
-        if self.config.welcome_message:
+        if self.config.welcome_message and not self.client.rooms.get(room.room_id):
+            # Add the room to the client list
+            self.client.rooms[room.room_id] = room
+
+            # Send welcome message
             await send_text_to_room(self.client, room.room_id, self.config.welcome_message)
