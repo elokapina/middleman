@@ -65,3 +65,5 @@ If you need help or want to otherwise chat, jump to `#middleman:elokapina.fi`!
 ## License
 
 Apache2
+
+`#middleman:elokapina.fi` room photo from [here](https://unsplash.com/photos/pi9W2dWDdak).
