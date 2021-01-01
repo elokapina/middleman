@@ -1,5 +1,14 @@
 # Changelog
 
+## unreleased
+
+### Added
+
+* Allow configuring mention only rooms. This allows joining Middleman to
+  rooms with lots of discussion. Messages in a room in this list will only
+  be relayed to the management room if the Middleman user is mentioned in the
+  message.
+
 ## v0.1.0 - 2020-12-19
 
 Initial version with the following features

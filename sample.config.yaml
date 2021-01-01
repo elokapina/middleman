@@ -35,6 +35,11 @@ middleman:
     Hello! I'm Middleman, a bot. I will relay your message forward to the maintainers of this
     bot. When they reply, you will see the message here. Ps. Sorry, images are not currently
     supported, text only please!
+  # List of rooms to only relay messages from when explicitly mentioned
+  # Any rooms here (alias or ID) will have messages relayed to the management
+  # room only if the bot is mentioned in the message. This allows joining the bot
+  # to rooms with a large amount of messages for support needs, for example.
+  mention_only_rooms: []
 
 storage:
   # The database connection string

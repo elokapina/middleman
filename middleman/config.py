@@ -106,6 +106,7 @@ class Config(object):
         self.management_room_id = self.management_room if self.management_room.startswith("!") else None
         self.anonymise_senders = self._get_cfg(["middleman", "anonymise_senders"], required=False, default=False)
         self.welcome_message = self._get_cfg(["middleman", "welcome_message"], required=False)
+        self.mention_only_rooms = self._get_cfg(["middleman", "mention_only_rooms"], required=False, default=[])
 
     def _get_cfg(
         self, path: List[str], default: Any = None, required: bool = True,

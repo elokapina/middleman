@@ -1,10 +1,11 @@
 import logging
+from typing import List
 
 # noinspection PyPackageRequirements
 from nio import RoomSendResponse
 
 from middleman.chat_functions import send_text_to_room
-from middleman.utils import get_in_reply_to
+from middleman.utils import get_in_reply_to, get_mentions
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +67,15 @@ class Message(object):
         else:
             logger.debug(f"Skipping {self.event.event_id} which does not look like a reply")
 
+    def is_mention_only_room(self, identifiers: List[str]) -> bool:
+        """
+        Check if this room is only if mentioned.
+        """
+        for identifier in identifiers:
+            if identifier in self.config.mention_only_rooms:
+                return True
+        return False
+
     async def process(self):
         """
         Process messages.
@@ -80,6 +90,16 @@ class Message(object):
     async def relay_to_management_room(self):
         """Relay to the management room."""
         room_identifier = self.room.canonical_alias or self.room.room_id
+        # First check if we want to relay this
+        if self.is_mention_only_room([self.room.canonical_alias, self.room.room_id]):
+            # Did we get mentioned?
+            if self.config.user_id not in get_mentions(self.message_content):
+                logger.debug("Skipping message %s in room %s as it's set to only relay on mention and we were not "
+                             "mentioned.", self.event.event_id, self.room.room_id)
+                return
+            logger.info("Room %s marked as mentions only and we have been mentioned, so relaying %s",
+                        self.room.room_id, self.event.event_id)
+
         if self.config.anonymise_senders:
             text = f"anonymous: <i>{self.message_content}</i>"
         else:
@@ -91,6 +111,6 @@ class Message(object):
                 response.event_id,
                 self.room.room_id,
             )
-            logger.info(f"Message {self.event.event_id} relayed to the management room")
+            logger.info("Message %s relayed to the management room", self.event.event_id)
         else:
-            logger.error(f"Failed to relay message {self.event.event_id} to the management room")
+            logger.error("Failed to relay message %s to the management room", self.event.event_id)
