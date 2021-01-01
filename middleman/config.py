@@ -87,6 +87,7 @@ class Config(object):
         self.user_id = self._get_cfg(["matrix", "user_id"], required=True)
         if not re.match("@.*:.*", self.user_id):
             raise ConfigError("matrix.user_id must be in the form @name:domain")
+        self.user_localpart = self.user_id.split(":")[0][1:]
 
         self.user_password = self._get_cfg(["matrix", "user_password"], required=False)
         self.user_token = self._get_cfg(["matrix", "user_token"], required=False)
