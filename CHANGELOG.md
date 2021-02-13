@@ -9,6 +9,11 @@
   be relayed to the management room if the Middleman user is mentioned in the
   message.
 
+### Fixed
+
+* Move the welcome message logic from the invite to a member joined event.
+  Fixes #1
+
 ## v0.1.0 - 2020-12-19
 
 Initial version with the following features

@@ -25,6 +25,41 @@ class Callbacks(object):
         self.store = store
         self.config = config
         self.command_prefix = config.command_prefix
+        self.received_events = set()
+        self.welcome_message_sent_to_room = set()
+
+    def clear_events_cache(self):
+        self.received_events = set()
+        self.welcome_message_sent_to_room = set()
+
+    async def member(self, room, event):
+        """Callback for when a room member event is received.
+
+        Args:
+            room (nio.rooms.MatrixRoom): The room the event came from
+
+            event (nio.events.room_events.RoomMemberEvent): The event
+        """
+        if self.should_process(event.event_id) is False:
+            return
+        logger.debug(
+            f"Received a room member event for {room.display_name} | "
+            f"{event.sender}: {event.membership}"
+        )
+
+        # Ignore if it was not us joining the room
+        if event.sender != self.client.user:
+            return
+
+        # Send welcome message if configured
+        if self.config.welcome_message:
+            if room.room_id in self.welcome_message_sent_to_room:
+                logger.debug(f"Not sending welcome message to room {room.room_id} - it's been sent already!")
+                return
+            # Send welcome message
+            logger.info(f"Sending welcome message to room {room.room_id}")
+            self.welcome_message_sent_to_room.add(room.room_id)
+            await send_text_to_room(self.client, room.room_id, self.config.welcome_message)
 
     async def message(self, room, event):
         """Callback for when a message event is received
@@ -35,11 +70,17 @@ class Callbacks(object):
             event (nio.events.room_events.RoomMessageText): The event defining the message
 
         """
+        if self.should_process(event.event_id) is False:
+            return
         # Extract the message text
         msg = event.body
 
         # Ignore messages from ourselves
         if event.sender == self.client.user:
+            # Use this opportunity to clear our callback event dupe protection cache 🙈
+            # Better than letting that ram just blow up.
+            # TODO: replace with something less random
+            self.clear_events_cache()
             return
 
         logger.debug(
@@ -63,6 +104,8 @@ class Callbacks(object):
 
     async def invite(self, room, event):
         """Callback for when an invite is received. Join the room specified in the invite"""
+        if self.should_process(event.source.get("event_id")) is False:
+            return
         logger.debug(f"Got invite to {room.room_id} from {event.sender}.")
 
         result = await with_ratelimit(self.client, "join", room.room_id)
@@ -72,9 +115,10 @@ class Callbacks(object):
 
         logger.info(f"Joined {room.room_id}")
 
-        if self.config.welcome_message and not self.client.rooms.get(room.room_id):
-            # Add the room to the client list
-            self.client.rooms[room.room_id] = room
-
-            # Send welcome message
-            await send_text_to_room(self.client, room.room_id, self.config.welcome_message)
+    def should_process(self, event_id: str) -> bool:
+        logger.debug(f"Callback received event: {event_id}")
+        if event_id in self.received_events:
+            logger.debug(f"Skipping {event_id} as it's already processed")
+            return False
+        self.received_events.add(event_id)
+        return True
