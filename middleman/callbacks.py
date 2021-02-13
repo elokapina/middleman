@@ -26,6 +26,29 @@ class Callbacks(object):
         self.config = config
         self.command_prefix = config.command_prefix
 
+    async def member(self, room, event):
+        """Callback for when a room member event is received.
+
+        Args:
+            room (nio.rooms.MatrixRoom): The room the event came from
+
+            event (nio.events.room_events.RoomMemberEvent): The event
+        """
+        logger.debug(
+            f"Received a room member event for {room.display_name} | "
+            f"{event.sender}: {event.membership}"
+        )
+
+        # Ignore if it was not us joining the room
+        if event.sender != self.client.user:
+            return
+
+        # Send welcome message if configured
+        if self.config.welcome_message:
+            # Send welcome message
+            logger.info(f"Sending welcome message to room {room.room_id}")
+            await send_text_to_room(self.client, room.room_id, self.config.welcome_message)
+
     async def message(self, room, event):
         """Callback for when a message event is received
 
@@ -71,10 +94,3 @@ class Callbacks(object):
             return
 
         logger.info(f"Joined {room.room_id}")
-
-        if self.config.welcome_message and not self.client.rooms.get(room.room_id):
-            # Add the room to the client list
-            self.client.rooms[room.room_id] = room
-
-            # Send welcome message
-            await send_text_to_room(self.client, room.room_id, self.config.welcome_message)
