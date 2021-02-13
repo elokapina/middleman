@@ -26,9 +26,11 @@ class Callbacks(object):
         self.config = config
         self.command_prefix = config.command_prefix
         self.received_events = set()
+        self.welcome_message_sent_to_room = set()
 
-    def clear_received_events_cache(self):
+    def clear_events_cache(self):
         self.received_events = set()
+        self.welcome_message_sent_to_room = set()
 
     async def member(self, room, event):
         """Callback for when a room member event is received.
@@ -51,8 +53,12 @@ class Callbacks(object):
 
         # Send welcome message if configured
         if self.config.welcome_message:
+            if room.room_id in self.welcome_message_sent_to_room:
+                logger.debug(f"Not sending welcome message to room {room.room_id} - it's been sent already!")
+                return
             # Send welcome message
             logger.info(f"Sending welcome message to room {room.room_id}")
+            self.welcome_message_sent_to_room.add(room.room_id)
             await send_text_to_room(self.client, room.room_id, self.config.welcome_message)
 
     async def message(self, room, event):
@@ -74,7 +80,7 @@ class Callbacks(object):
             # Use this opportunity to clear our callback event dupe protection cache 🙈
             # Better than letting that ram just blow up.
             # TODO: replace with something less random
-            self.clear_received_events_cache()
+            self.clear_events_cache()
             return
 
         logger.debug(
