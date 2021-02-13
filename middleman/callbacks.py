@@ -27,6 +27,9 @@ class Callbacks(object):
         self.command_prefix = config.command_prefix
         self.received_events = set()
 
+    def clear_received_events_cache(self):
+        self.received_events = set()
+
     async def member(self, room, event):
         """Callback for when a room member event is received.
 
@@ -68,6 +71,10 @@ class Callbacks(object):
 
         # Ignore messages from ourselves
         if event.sender == self.client.user:
+            # Use this opportunity to clear our callback event dupe protection cache 🙈
+            # Better than letting that ram just blow up.
+            # TODO: replace with something less random
+            self.clear_received_events_cache()
             return
 
         logger.debug(
