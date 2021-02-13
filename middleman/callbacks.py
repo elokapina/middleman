@@ -25,6 +25,7 @@ class Callbacks(object):
         self.store = store
         self.config = config
         self.command_prefix = config.command_prefix
+        self.received_events = set()
 
     async def member(self, room, event):
         """Callback for when a room member event is received.
@@ -34,6 +35,8 @@ class Callbacks(object):
 
             event (nio.events.room_events.RoomMemberEvent): The event
         """
+        if self.should_process(event.event_id) is False:
+            return
         logger.debug(
             f"Received a room member event for {room.display_name} | "
             f"{event.sender}: {event.membership}"
@@ -58,6 +61,8 @@ class Callbacks(object):
             event (nio.events.room_events.RoomMessageText): The event defining the message
 
         """
+        if self.should_process(event.event_id) is False:
+            return
         # Extract the message text
         msg = event.body
 
@@ -86,6 +91,8 @@ class Callbacks(object):
 
     async def invite(self, room, event):
         """Callback for when an invite is received. Join the room specified in the invite"""
+        if self.should_process(event.source.get("event_id")) is False:
+            return
         logger.debug(f"Got invite to {room.room_id} from {event.sender}.")
 
         result = await with_ratelimit(self.client, "join", room.room_id)
@@ -94,3 +101,11 @@ class Callbacks(object):
             return
 
         logger.info(f"Joined {room.room_id}")
+
+    def should_process(self, event_id: str) -> bool:
+        logger.debug(f"Callback received event: {event_id}")
+        if event_id in self.received_events:
+            logger.debug(f"Skipping {event_id} as it's already processed")
+            return False
+        self.received_events.add(event_id)
+        return True
