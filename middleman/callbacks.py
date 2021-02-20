@@ -51,6 +51,10 @@ class Callbacks(object):
         if event.sender != self.client.user:
             return
 
+        # Ignore if we didn't join
+        if event.membership != "join":
+            return
+
         # Send welcome message if configured
         if self.config.welcome_message:
             if room.room_id in self.welcome_message_sent_to_room:
