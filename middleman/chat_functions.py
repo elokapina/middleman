@@ -1,22 +1,24 @@
 import logging
-from typing import Optional
+from typing import Union
 
 from markdown import markdown
 # noinspection PyPackageRequirements
-from nio import SendRetryError, RoomSendResponse
+from nio import SendRetryError, RoomSendResponse, RoomSendError
 
 from middleman.utils import with_ratelimit
 
 logger = logging.getLogger(__name__)
 
 
-async def send_text_to_room(client, room_id, message, notice=True, markdown_convert=True) -> Optional[RoomSendResponse]:
+async def send_text_to_room(
+    client, room, message, notice=True, markdown_convert=True,
+) -> Union[RoomSendResponse, RoomSendError, str]:
     """Send text to a matrix room
 
     Args:
         client (nio.AsyncClient): The client to communicate to matrix with
 
-        room_id (str): The ID of the room to send the message to
+        room (str): The ID or alias of the room to send the message to
 
         message (str): The message content
 
@@ -26,6 +28,20 @@ async def send_text_to_room(client, room_id, message, notice=True, markdown_conv
         markdown_convert (bool): Whether to convert the message content to markdown.
             Defaults to true.
     """
+    if room.startswith("#"):
+        response = await with_ratelimit(client, "room_resolve_alias", room)
+        if getattr(response, "room_id", None):
+            room_id = response.room_id
+            logger.debug(f"Room '{room}' resolved to {room_id}")
+        else:
+            logger.warning(f"Could not resolve '{room}' to a room ID")
+            return "Unknown room alias"
+    elif room.startswith("!"):
+        room_id = room
+    else:
+        logger.warning(f"Unknown type of room identifier: {room}")
+        return "Unknown room identifier"
+
     # Determine whether to ping room members or not
     msgtype = "m.notice" if notice else "m.text"
 
@@ -47,5 +63,6 @@ async def send_text_to_room(client, room_id, message, notice=True, markdown_conv
             content,
             ignore_unverified_devices=True,
         )
-    except SendRetryError:
+    except SendRetryError as ex:
         logger.exception(f"Unable to send message response to {room_id}")
+        return f"Failed to send message: {ex}"
