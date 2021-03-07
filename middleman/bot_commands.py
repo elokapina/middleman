@@ -1,4 +1,12 @@
+import logging
+
+# noinspection PyPackageRequirements
+from nio import RoomSendResponse
+
+from middleman import commands_help
 from middleman.chat_functions import send_text_to_room
+
+logger = logging.getLogger(__name__)
 
 
 class Command(object):
@@ -32,6 +40,8 @@ class Command(object):
             await self._echo()
         elif self.command.startswith("help"):
             await self._show_help()
+        elif self.command.startswith("message"):
+            await self._message()
         else:
             await self._unknown_command()
 
@@ -64,4 +74,31 @@ class Command(object):
             self.client,
             self.room.room_id,
             f"Unknown command '{self.command}'. Try the 'help' command for more information.",
+        )
+
+    async def _message(self):
+        """
+        Write a m.text message to a room.
+        """
+        if self.room.room_id != self.config.management_room_id:
+            # Only allow sending messages from the management room
+            return
+
+        if len(self.args) < 2:
+            await send_text_to_room(self.client, self.room.room_id, commands_help.COMMAND_WRITE)
+            return
+
+        room = self.args[0]
+        text = ' '.join(self.args[1:])
+
+        response = await send_text_to_room(self.client, room, text, False)
+
+        if type(response) == RoomSendResponse and response.event_id:
+            logger.info(f"Processed sending message to room {room}")
+            await send_text_to_room(self.client, self.room.room_id, f"Message was delivered to {room}")
+            return
+
+        error_message = response if type(response == str) else getattr(response, "message", "Unknown error")
+        await send_text_to_room(
+            self.client, self.room.room_id, f"Failed to deliver message to {room}! Error: {error_message}",
         )

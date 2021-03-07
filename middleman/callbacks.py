@@ -93,11 +93,14 @@ class Callbacks(object):
         )
 
         # Process as message if in a public room without command prefix
-        has_command_prefix = msg.startswith(self.command_prefix)
+        has_command_prefix = msg.startswith(self.command_prefix) or msg.startswith("!message")
 
         if has_command_prefix:
-            # Remove the command prefix
-            msg = msg[len(self.command_prefix):]
+            if msg.startswith("!message"):
+                msg = msg[1:]
+            else:
+                # Remove the command prefix
+                msg = msg[len(self.command_prefix):]
 
             command = Command(self.client, self.store, self.config, msg, room, event)
             await command.process()
