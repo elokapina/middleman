@@ -8,6 +8,11 @@
   rooms with lots of discussion. Messages in a room in this list will only
   be relayed to the management room if the Middleman user is mentioned in the
   message.
+  
+### Changed
+
+* Messages relayed into the management room and replies to the senders
+  are now standard text messages, not notices.
 
 ### Fixed
 

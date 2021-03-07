@@ -48,6 +48,7 @@ class Message(object):
                     self.client,
                     room["room_id"],
                     reply_text,
+                    False,
                 )
                 if self.config.anonymise_senders:
                     management_room_text = "Message delivered back to the sender."
@@ -58,6 +59,7 @@ class Message(object):
                     self.client,
                     self.room.room_id,
                     management_room_text,
+                    True,
                 )
                 logger.info(f"Message {self.event.event_id} relayed back to the original sender")
             else:
@@ -106,7 +108,7 @@ class Message(object):
             text = f"anonymous: <i>{self.message_content}</i>"
         else:
             text = f"{self.event.sender} in {room_identifier}: <i>{self.message_content}</i>"
-        response = await send_text_to_room(self.client, self.config.management_room, text)
+        response = await send_text_to_room(self.client, self.config.management_room, text, False)
         if type(response) == RoomSendResponse and response.event_id:
             self.store.store_message(
                 self.event.event_id,

@@ -63,7 +63,7 @@ class Callbacks(object):
             # Send welcome message
             logger.info(f"Sending welcome message to room {room.room_id}")
             self.welcome_message_sent_to_room.add(room.room_id)
-            await send_text_to_room(self.client, room.room_id, self.config.welcome_message)
+            await send_text_to_room(self.client, room.room_id, self.config.welcome_message, True)
 
     async def message(self, room, event):
         """Callback for when a message event is received
