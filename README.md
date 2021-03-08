@@ -12,6 +12,7 @@ Features:
 * Management room users can reply by replying to the messages prefixing with `!reply`
 * Sender messages can be configured as anonymous
 * Configurable welcome message when bot is invited to a room
+* Users in the management room can write to rooms the bot is in via the `!message` command
 
 ## Running
 
@@ -39,8 +40,12 @@ docker run -v ${PWD}/config.docker.yaml:/config/config.yaml:ro \
 The configured management room is the room that all messages Middleman receives in other rooms 
 will be relayed to.
 
-Normal discussion can happen in the management room. Only replies prefixed with `!reply` will be relayed
-back to the room it came from.
+Normal discussion can happen in the management room. The bot will send out messages in two cases:
+
+* Replies prefixed with `!reply` will be relayed back to the room the message came from.
+* Messages prefixed with `!message <room ID or alias>` will be sent to the room given.
+
+  For example: `!message #foobar:domain.tld Hello world` would send out "Hello world".
 
 Currently, messages relayed between the rooms are limited to plain text. Images and
 other non-text messages will not currently be relayed either way.

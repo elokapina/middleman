@@ -9,6 +9,9 @@
   be relayed to the management room if the Middleman user is mentioned in the
   message.
   
+* Add a new command `!message` to send messages to other rooms. This can only be used
+  in the management room. Works with both ID and alias.
+  
 ### Changed
 
 * Messages relayed into the management room and replies to the senders
