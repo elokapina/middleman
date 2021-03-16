@@ -89,7 +89,12 @@ class Command(object):
             return
 
         room = self.args[0]
-        text = ' '.join(self.args[1:])
+        # Remove the command
+        text = self.command[7:]
+        # Remove the room
+        text = text.replace(room, "", 1)
+        # Strip the leading spaces
+        text = text.strip()
 
         response = await send_text_to_room(self.client, room, text, False)
 
