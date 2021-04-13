@@ -91,10 +91,6 @@ class Message(object):
 
     async def relay_to_management_room(self):
         """Relay to the management room."""
-        room_identifier = self.room.canonical_alias or self.room.room_id
-        if self.room.name:
-            room_identifier = f'{room_identifier} ("{self.room.name}")'
-
         # First check if we want to relay this
         if self.is_mention_only_room([self.room.canonical_alias, self.room.room_id]):
             # Did we get mentioned?
@@ -110,7 +106,8 @@ class Message(object):
         if self.config.anonymise_senders:
             text = f"anonymous: <i>{self.message_content}</i>"
         else:
-            text = f"{self.event.sender} in {room_identifier}: <i>{self.message_content}</i>"
+            text = f"{self.event.sender} in {self.room.display_name} (`{self.room.room_id}`): " \
+                   f"<i>{self.message_content}</i>"
         response = await send_text_to_room(self.client, self.config.management_room, text, False)
         if type(response) == RoomSendResponse and response.event_id:
             self.store.store_message(
