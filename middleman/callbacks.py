@@ -65,6 +65,15 @@ class Callbacks(object):
             self.welcome_message_sent_to_room.add(room.room_id)
             await send_text_to_room(self.client, room.room_id, self.config.welcome_message, True)
 
+        # Notify the management room for visibility
+        logger.info(f"Notifying management room of room join to {room.room_id}")
+        await send_text_to_room(
+            self.client,
+            self.config.management_room_id,
+            f"I have joined room {room.display_name} (`{room.room_id}`) after being invited.",
+            True,
+        )
+
     async def message(self, room, event):
         """Callback for when a message event is received
 

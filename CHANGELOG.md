@@ -19,6 +19,8 @@
   
 * Messages relayed into the management room now also have the room
   name if there is one.
+  
+* When joining a room the bot will now also message the management room about the join.
 
 ### Fixed
 
