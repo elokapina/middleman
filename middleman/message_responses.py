@@ -92,6 +92,9 @@ class Message(object):
     async def relay_to_management_room(self):
         """Relay to the management room."""
         room_identifier = self.room.canonical_alias or self.room.room_id
+        if self.room.name:
+            room_identifier = f'{room_identifier} ("{self.room.name}")'
+
         # First check if we want to relay this
         if self.is_mention_only_room([self.room.canonical_alias, self.room.room_id]):
             # Did we get mentioned?

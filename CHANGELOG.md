@@ -16,6 +16,9 @@
 
 * Messages relayed into the management room and replies to the senders
   are now standard text messages, not notices.
+  
+* Messages relayed into the management room now also have the room
+  name if there is one.
 
 ### Fixed
 
