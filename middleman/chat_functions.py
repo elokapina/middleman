@@ -1,7 +1,7 @@
 import logging
 from typing import Union
 
-from markdown import markdown
+from commonmark import commonmark
 # noinspection PyPackageRequirements
 from nio import SendRetryError, RoomSendResponse, RoomSendError, LocalProtocolError
 
@@ -52,7 +52,7 @@ async def send_text_to_room(
     }
 
     if markdown_convert:
-        content["formatted_body"] = markdown(message)
+        content["formatted_body"] = commonmark(message)
 
     try:
         return await with_ratelimit(

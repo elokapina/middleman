@@ -31,8 +31,8 @@ setup(
     description="Matrix bot to act as a middleman ",
     packages=find_packages(exclude=["tests", "tests.*"]),
     install_requires=[
+        "commonmark>=0.9.1",
         "matrix-nio[e2e]>=0.18.0",
-        "Markdown>=3.1.1",
         "PyYAML>=5.1.2",
     ],
     extras_require={

@@ -30,6 +30,8 @@
 
 * Don't resend welcome message on display name change (ref #14)
 
+* Fix some Markdown rendering issues by switching to CommonMark module (ref #11)
+
 ## v0.1.0 - 2020-12-19
 
 Initial version with the following features
