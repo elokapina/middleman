@@ -15,6 +15,8 @@ from nio import (
     LocalProtocolError,
     LoginError,
     RoomMemberEvent,
+    RoomMessageFormatted,
+    RoomMessageNotice,
     RoomMessageText,
     RoomResolveAliasResponse,
 )
@@ -66,7 +68,7 @@ async def main():
     # noinspection PyTypeChecker
     client.add_event_callback(callbacks.member, (RoomMemberEvent,))
     # noinspection PyTypeChecker
-    client.add_event_callback(callbacks.message, (RoomMessageText,))
+    client.add_event_callback(callbacks.message, (RoomMessageText, RoomMessageNotice, RoomMessageFormatted))
     # noinspection PyTypeChecker
     client.add_event_callback(callbacks.invite, (InviteMemberEvent,))
 

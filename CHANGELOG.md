@@ -11,6 +11,8 @@
   
 * Add a new command `!message` to send messages to other rooms. This can only be used
   in the management room. Works with both ID and alias.
+
+* Ensure `m.notice` messages are also relayed.
   
 ### Changed
 
