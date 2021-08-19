@@ -12,7 +12,7 @@
 * Add a new command `!message` to send messages to other rooms. This can only be used
   in the management room. Works with both ID and alias.
 
-* Ensure `m.notice` messages are also relayed.
+* Ensure `m.notice` messages are also relayed (ref #18)
   
 ### Changed
 
@@ -26,8 +26,9 @@
 
 ### Fixed
 
-* Move the welcome message logic from the invite to a member joined event.
-  Fixes #1
+* Move the welcome message logic from the invite to a member joined event (ref #1)
+
+* Don't resend welcome message on display name change (ref #14)
 
 ## v0.1.0 - 2020-12-19
 

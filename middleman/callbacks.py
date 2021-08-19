@@ -52,7 +52,7 @@ class Callbacks(object):
             return
 
         # Ignore if we didn't join
-        if event.membership != "join":
+        if event.membership != "join" or event.prev_content.get("membership") == "join":
             return
 
         # Send welcome message if configured
