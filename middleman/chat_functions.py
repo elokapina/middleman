@@ -3,7 +3,7 @@ from typing import Union
 
 from markdown import markdown
 # noinspection PyPackageRequirements
-from nio import SendRetryError, RoomSendResponse, RoomSendError
+from nio import SendRetryError, RoomSendResponse, RoomSendError, LocalProtocolError
 
 from middleman.utils import with_ratelimit
 
@@ -63,6 +63,6 @@ async def send_text_to_room(
             content,
             ignore_unverified_devices=True,
         )
-    except SendRetryError as ex:
+    except (LocalProtocolError, SendRetryError) as ex:
         logger.exception(f"Unable to send message response to {room_id}")
         return f"Failed to send message: {ex}"
