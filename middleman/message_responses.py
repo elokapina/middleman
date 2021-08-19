@@ -107,7 +107,7 @@ class Message(object):
             text = f"anonymous: <i>{self.message_content}</i>"
         else:
             text = f"{self.event.sender} in {self.room.display_name} (`{self.room.room_id}`): " \
-                   f"<i>{self.message_content}</i>"
+                   f"{self.message_content}"
         response = await send_text_to_room(self.client, self.config.management_room, text, False)
         if type(response) == RoomSendResponse and response.event_id:
             self.store.store_message(
