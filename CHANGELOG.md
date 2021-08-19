@@ -24,6 +24,8 @@
   
 * When joining a room the bot will now also message the management room about the join.
 
+* Don't format relayed messages in italic since it breaks formatting of relayed messages (ref #16)
+
 ### Fixed
 
 * Move the welcome message logic from the invite to a member joined event (ref #1)
@@ -31,6 +33,8 @@
 * Don't resend welcome message on display name change (ref #14)
 
 * Fix some Markdown rendering issues by switching to CommonMark module (ref #11)
+
+* Send error message back to management room on unknown room ID (ref #13)
 
 ## v0.1.0 - 2020-12-19
 
