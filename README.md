@@ -63,7 +63,8 @@ If you need help or want to otherwise chat, jump to `#middleman:elokapina.fi`!
 * Make a GitHub release, copy the changelog for the release there
 * Build a docker image
   * `docker build -f docker/Dockerfile . -t elokapinaorg/middleman:v<version>`
-* Push docker image
+  * `docker tag elokapinaorg/middleman:v<version> elokapinaorg/middleman:latest`
+* Push docker images
 * Update topic in `#middleman:elokapina.fi`
 * Consider announcing on `#thisweekinmatrix:matrix.org` \o/
 
