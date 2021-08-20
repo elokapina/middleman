@@ -12,6 +12,11 @@ matrix:
   # Matrix account password (optional if access token used)
   user_password: ""
   # Matrix account access token (optional if password used)
+  # Please note, if you use an access token, you must ensure the token and device pair exists
+  # in the Matrix server database. For example for Synapse (replacing device id and user token):
+  #    insert into access_tokens (id, user_id, device_id, token) values (
+  #       (select max(id)+1 from access_tokens), '@bot:example.com', '<device id>', '<user_token>'
+  #    );
   #user_token: ""
   # The URL of the homeserver to connect to
   homeserver_url: https://example.com
