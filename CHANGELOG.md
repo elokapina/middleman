@@ -7,6 +7,10 @@
 * Add config option `mention_only_always_for_groups` to allow treating rooms
   that look like groups (named or with alias) as mention only automatically.
 
+### Fixed
+
+* Ensure case is ignored when looking for display name mentions ([issue](https://github.com/elokapina/middleman/issues/21))
+
 ## v0.2.0 - 2021-08-20
 
 ### Added

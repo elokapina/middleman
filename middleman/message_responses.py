@@ -97,7 +97,7 @@ class Message(object):
         if self.is_mention_only_room([self.room.canonical_alias, self.room.room_id], self.room.is_group):
             # Did we get mentioned?
             mentioned = self.config.user_id in get_mentions(self.message_content) or \
-                        self.message_content.find(self.config.user_localpart) > -1
+                        self.message_content.lower().find(self.config.user_localpart.lower()) > -1
             if not mentioned:
                 logger.debug("Skipping message %s in room %s as it's set to only relay on mention and we were not "
                              "mentioned.", self.event.event_id, self.room.room_id)
