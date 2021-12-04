@@ -10,6 +10,8 @@ from middleman.utils import with_ratelimit
 
 logger = logging.getLogger(__name__)
 
+DUPLICATES_CACHE_SIZE = 1000
+
 
 class Callbacks(object):
     def __init__(self, client, store, config):
@@ -25,12 +27,14 @@ class Callbacks(object):
         self.store = store
         self.config = config
         self.command_prefix = config.command_prefix
-        self.received_events = set()
-        self.welcome_message_sent_to_room = set()
+        self.received_events = []
+        self.welcome_message_sent_to_room = []
 
-    def clear_events_cache(self):
-        self.received_events = set()
-        self.welcome_message_sent_to_room = set()
+    def trim_duplicates_caches(self):
+        if len(self.received_events) > DUPLICATES_CACHE_SIZE:
+            self.received_events = self.received_events[:DUPLICATES_CACHE_SIZE]
+        if len(self.welcome_message_sent_to_room) > DUPLICATES_CACHE_SIZE:
+            self.welcome_message_sent_to_room = self.welcome_message_sent_to_room[:DUPLICATES_CACHE_SIZE]
 
     async def member(self, room, event):
         """Callback for when a room member event is received.
@@ -40,6 +44,7 @@ class Callbacks(object):
 
             event (nio.events.room_events.RoomMemberEvent): The event
         """
+        self.trim_duplicates_caches()
         if self.should_process(event.event_id) is False:
             return
         logger.debug(
@@ -62,7 +67,7 @@ class Callbacks(object):
                 return
             # Send welcome message
             logger.info(f"Sending welcome message to room {room.room_id}")
-            self.welcome_message_sent_to_room.add(room.room_id)
+            self.welcome_message_sent_to_room.insert(0, room.room_id)
             await send_text_to_room(self.client, room.room_id, self.config.welcome_message, True)
 
         # Notify the management room for visibility
@@ -83,6 +88,7 @@ class Callbacks(object):
             event (nio.events.room_events.RoomMessageText): The event defining the message
 
         """
+        self.trim_duplicates_caches()
         if self.should_process(event.event_id) is False:
             return
         # Extract the message text
@@ -90,10 +96,6 @@ class Callbacks(object):
 
         # Ignore messages from ourselves
         if event.sender == self.client.user:
-            # Use this opportunity to clear our callback event dupe protection cache 🙈
-            # Better than letting that ram just blow up.
-            # TODO: replace with something less random
-            self.clear_events_cache()
             return
 
         logger.debug(
@@ -136,5 +138,5 @@ class Callbacks(object):
         if event_id in self.received_events:
             logger.debug(f"Skipping {event_id} as it's already processed")
             return False
-        self.received_events.add(event_id)
+        self.received_events.insert(0, event_id)
         return True

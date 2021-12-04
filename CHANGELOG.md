@@ -11,6 +11,8 @@
 
 * Ensure case is ignored when looking for display name mentions ([issue](https://github.com/elokapina/middleman/issues/21))
 
+* Better duplicate events cache control in callbacks to avoid ram usage growth over time.
+
 ## v0.2.0 - 2021-08-20
 
 ### Added
