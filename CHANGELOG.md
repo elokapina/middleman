@@ -1,5 +1,12 @@
 # Changelog
 
+## unreleased
+
+### Added
+
+* Add config option `mention_only_always_for_groups` to allow treating rooms
+  that look like groups (named or with alias) as mention only automatically.
+
 ## v0.2.0 - 2021-08-20
 
 ### Added

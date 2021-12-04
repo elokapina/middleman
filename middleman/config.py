@@ -108,6 +108,9 @@ class Config(object):
         self.anonymise_senders = self._get_cfg(["middleman", "anonymise_senders"], required=False, default=False)
         self.welcome_message = self._get_cfg(["middleman", "welcome_message"], required=False)
         self.mention_only_rooms = self._get_cfg(["middleman", "mention_only_rooms"], required=False, default=[])
+        self.mention_only_always_for_groups = self._get_cfg(
+            ["middleman", "mention_only_always_for_groups"], required=False, default=False,
+        )
 
     def _get_cfg(
         self, path: List[str], default: Any = None, required: bool = True,
