@@ -49,6 +49,7 @@ class Message(object):
                     room["room_id"],
                     reply_text,
                     False,
+                    reply_to_event_id=reply_to,
                 )
                 if self.config.anonymise_senders:
                     management_room_text = "Message delivered back to the sender."

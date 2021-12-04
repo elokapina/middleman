@@ -3,15 +3,14 @@ from typing import Union
 
 from commonmark import commonmark
 # noinspection PyPackageRequirements
-from nio import SendRetryError, RoomSendResponse, RoomSendError, LocalProtocolError
-
-from middleman.utils import with_ratelimit
+from nio import SendRetryError, RoomSendResponse, RoomSendError, LocalProtocolError, AsyncClient
 
 logger = logging.getLogger(__name__)
 
 
 async def send_text_to_room(
-    client, room, message, notice=True, markdown_convert=True,
+    client: AsyncClient, room: str, message: str, notice: bool = True, markdown_convert: bool = True,
+    reply_to_event_id: str = None,
 ) -> Union[RoomSendResponse, RoomSendError, str]:
     """Send text to a matrix room
 
@@ -27,9 +26,11 @@ async def send_text_to_room(
 
         markdown_convert (bool): Whether to convert the message content to markdown.
             Defaults to true.
+
+        reply_to_event_id (str): Optional event ID that this message is a reply to.
     """
     if room.startswith("#"):
-        response = await with_ratelimit(client, "room_resolve_alias", room)
+        response = await client.room_resolve_alias(room)
         if getattr(response, "room_id", None):
             room_id = response.room_id
             logger.debug(f"Room '{room}' resolved to {room_id}")
@@ -54,10 +55,16 @@ async def send_text_to_room(
     if markdown_convert:
         content["formatted_body"] = commonmark(message)
 
+    # We don't store the original message content so cannot provide the fallback, unfortunately
+    if reply_to_event_id:
+        content["m.relates_to"] = {
+            "m.in_reply_to": {
+                "event_id": reply_to_event_id,
+            },
+        }
+
     try:
-        return await with_ratelimit(
-            client,
-            "room_send",
+        return await client.room_send(
             room_id,
             "m.room.message",
             content,
