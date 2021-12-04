@@ -98,6 +98,10 @@ class Callbacks(object):
         if event.sender == self.client.user:
             return
 
+        # If this looks like an edit, strip the edit prefix
+        if msg.startswith(" * "):
+            msg = msg[3:]
+
         logger.debug(
             f"Bot message received for room {room.display_name} | "
             f"{room.user_name(event.sender)}: {msg}"

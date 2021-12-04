@@ -13,6 +13,8 @@
 
 * Better duplicate events cache control in callbacks to avoid ram usage growth over time.
 
+* Management room commands now ignore any reply prefix on the message, allowing fixing command typos.
+
 ## v0.2.0 - 2021-08-20
 
 ### Added
