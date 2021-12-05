@@ -4,8 +4,8 @@
 
 ### Added
 
-* Add config option `mention_only_always_for_groups` to allow treating rooms
-  that look like groups (named or with alias) as mention only automatically.
+* Add config option `mention_only_always_for_named` to allow treating rooms
+  that look like named rooms (named or with alias) as mention only automatically.
 
 * Allow editing outbound replies and messages. If a previous `!edit` or `!message`
   command is edited, it will be sent out as an edit replacing the original outbound

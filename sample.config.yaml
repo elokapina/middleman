@@ -41,16 +41,16 @@ middleman:
     bot. When they reply, you will see the message here. Ps. Sorry, images are not currently
     supported, text only please!
   # Operate in "mentions only" for rooms that look like non-direct messages,
-  # This is based on the nio "is_group" logic, ie a room is a group if it has
+  # This is based on the nio "is_named" logic, ie a room is a named room if it has
   # 1) an alias or 2) a name. Direct messages often don't have names, they are
   # generated dynamically based on the participants.
   # When set to true, "mention_only_rooms" has no effect.
-  mention_only_always_for_groups: false
+  mention_only_always_for_named: false
   # List of rooms to only relay messages from when explicitly mentioned
   # Any rooms here (alias or ID) will have messages relayed to the management
   # room only if the bot is mentioned in the message. This allows joining the bot
   # to rooms with a large amount of messages for support needs, for example.
-  # When "mention_only_always_for_groups" is set to true, this has no effect.
+  # When "mention_only_always_for_named" is set to true, this has no effect.
   mention_only_rooms: []
 
 storage:

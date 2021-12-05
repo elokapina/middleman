@@ -130,7 +130,7 @@ class Message(object):
         """
         Check if this room is only if mentioned.
         """
-        if self.config.mention_only_always_for_groups and is_named:
+        if self.config.mention_only_always_for_named and is_named:
             return True
         for identifier in identifiers:
             if identifier in self.config.mention_only_rooms:
