@@ -5,6 +5,7 @@ from nio import RoomSendResponse
 
 from middleman import commands_help
 from middleman.chat_functions import send_text_to_room
+from middleman.utils import get_replaces
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +89,13 @@ class Command(object):
             await send_text_to_room(self.client, self.room.room_id, commands_help.COMMAND_WRITE)
             return
 
+        replaces = get_replaces(self.event)
+        replaces_event_id = None
+        if replaces:
+            message = self.store.get_message_by_management_event_id(replaces)
+            if message:
+                replaces_event_id = message["event_id"]
+
         room = self.args[0]
         # Remove the command
         text = self.command[7:]
@@ -96,11 +104,20 @@ class Command(object):
         # Strip the leading spaces
         text = text.strip()
 
-        response = await send_text_to_room(self.client, room, text, False)
+        response = await send_text_to_room(self.client, room, text, False, replaces_event_id=replaces_event_id)
 
         if type(response) == RoomSendResponse and response.event_id:
-            logger.info(f"Processed sending message to room {room}")
-            await send_text_to_room(self.client, self.room.room_id, f"Message was delivered to {room}")
+            self.store.store_message(
+                event_id=response.event_id,
+                management_event_id=self.event.event_id,
+                room_id=room,
+            )
+            if replaces_event_id:
+                logger.info(f"Processed editing message in room {room}")
+                await send_text_to_room(self.client, self.room.room_id, f"Message was edited in {room}")
+            else:
+                logger.info(f"Processed sending message to room {room}")
+                await send_text_to_room(self.client, self.room.room_id, f"Message was delivered to {room}")
             return
 
         error_message = response if type(response == str) else getattr(response, "message", "Unknown error")
