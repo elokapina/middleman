@@ -50,7 +50,7 @@ class Message(object):
                     message["room_id"],
                     reply_text,
                     False,
-                    reply_to_event_id=reply_to,
+                    reply_to_event_id=message["event_id"],
                 )
                 if isinstance(response, RoomSendResponse):
                     # Store our outbound reply so we can reference it later
