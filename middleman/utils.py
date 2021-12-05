@@ -27,6 +27,15 @@ def get_mentions(text: str) -> List[str]:
     return list({match.group() for match in matches})
 
 
+def get_replaces(event: nio.Event) -> Optional[str]:
+    """
+    Get the replaces relation, if any.
+    """
+    rel_type = event.source.get("content", {}).get("m.relates_to", {}).get("rel_type")
+    if rel_type == "m.replace":
+        return event.source.get("content").get("m.relates_to").get("event_id")
+
+
 async def with_ratelimit(client, method, *args, **kwargs):
     """
     Call a client method with 3s backoff if rate limited.

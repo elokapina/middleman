@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 async def send_text_to_room(
     client: AsyncClient, room: str, message: str, notice: bool = True, markdown_convert: bool = True,
-    reply_to_event_id: str = None,
+    reply_to_event_id: str = None, replaces_event_id: str = None,
 ) -> Union[RoomSendResponse, RoomSendError, str]:
     """Send text to a matrix room
 
@@ -28,6 +28,8 @@ async def send_text_to_room(
             Defaults to true.
 
         reply_to_event_id (str): Optional event ID that this message is a reply to.
+
+        replaces_event_id (str): Optional event ID that this message replaces.
     """
     if room.startswith("#"):
         response = await client.room_resolve_alias(room)
@@ -55,8 +57,20 @@ async def send_text_to_room(
     if markdown_convert:
         content["formatted_body"] = commonmark(message)
 
+    if replaces_event_id:
+        content["m.relates_to"] = {
+            "rel_type": "m.replace",
+            "event_id": replaces_event_id,
+        }
+        content["m.new_content"] = {
+            "msgtype": msgtype,
+            "format": "org.matrix.custom.html",
+            "body": message,
+        }
+        if markdown_convert:
+            content["m.new_content"]["formatted_body"] = commonmark(message)
     # We don't store the original message content so cannot provide the fallback, unfortunately
-    if reply_to_event_id:
+    elif reply_to_event_id:
         content["m.relates_to"] = {
             "m.in_reply_to": {
                 "event_id": reply_to_event_id,

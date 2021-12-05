@@ -5,7 +5,7 @@ from typing import List
 from nio import RoomSendResponse, RoomSendError
 
 from middleman.chat_functions import send_text_to_room
-from middleman.utils import get_in_reply_to, get_mentions
+from middleman.utils import get_in_reply_to, get_mentions, get_replaces
 
 logger = logging.getLogger(__name__)
 
@@ -36,17 +36,18 @@ class Message(object):
 
     async def handle_management_room_message(self):
         reply_to = get_in_reply_to(self.event)
+        replaces = get_replaces(self.event)
         if reply_to and self.message_content.find("!reply ") > -1:
             # Send back to original sender
-            room = self.store.get_message_by_management_event_id(reply_to)
-            if room:
+            message = self.store.get_message_by_management_event_id(reply_to)
+            if message:
                 # Relay back to original sender
                 # Send back anything after !reply
                 reply_starts = self.message_content.index("!reply")
                 reply_text = self.message_content[reply_starts + 7:]
                 response = await send_text_to_room(
                     self.client,
-                    room["room_id"],
+                    message["room_id"],
                     reply_text,
                     False,
                     reply_to_event_id=reply_to,
@@ -55,13 +56,13 @@ class Message(object):
                     # Store our outbound reply so we can reference it later
                     self.store.store_message(
                         event_id=response.event_id,
-                        management_event_id=reply_to,
-                        room_id=room["room_id"],
+                        management_event_id=self.event.event_id,
+                        room_id=message["room_id"],
                     )
                     if self.config.anonymise_senders:
                         management_room_text = "Message delivered back to the sender."
                     else:
-                        management_room_text = f"Message delivered back to the sender in room {room['room_id']}."
+                        management_room_text = f"Message delivered back to the sender in room {message['room_id']}."
                     logger.info(f"Message {self.event.event_id} relayed back to the original sender")
                 elif isinstance(response, RoomSendError):
                     management_room_text = f"Failed to send message back to sender: {response.message}"
@@ -80,6 +81,48 @@ class Message(object):
                 logger.debug(
                     f"Skipping message {self.event.event_id} which is not a reply to one of our relay messages",
                 )
+        elif replaces and self.message_content.find("!reply ") > -1:
+            # Edit the already sent reply event
+            message = self.store.get_message_by_management_event_id(replaces)
+            if message:
+                # Edit the previously sent event
+                # Send back anything after !reply
+                message_content = self.event.source.get("content", {}).get("m.new_content", {}).get("body")
+                if message_content:
+                    reply_starts = message_content.index("!reply")
+                    reply_text = message_content[reply_starts + 7:]
+                    response = await send_text_to_room(
+                        self.client,
+                        message["room_id"],
+                        reply_text,
+                        False,
+                        replaces_event_id=message["event_id"],
+                    )
+                    if isinstance(response, RoomSendResponse):
+                        # Store our outbound reply so we can reference it later
+                        self.store.store_message(
+                            event_id=response.event_id,
+                            management_event_id=self.event.event_id,
+                            room_id=message["room_id"],
+                        )
+                        if self.config.anonymise_senders:
+                            management_room_text = "Edit delivered back to the sender."
+                        else:
+                            management_room_text = f"Edit delivered back to the sender in room {message['room_id']}."
+                        logger.info(f"Edit {self.event.event_id} relayed back to the original sender")
+                    elif isinstance(response, RoomSendError):
+                        management_room_text = f"Failed to send edit back to sender: {response.message}"
+                        logger.warning(management_room_text)
+                    else:
+                        management_room_text = f"Failed to send edit back to sender: {response}"
+                        logger.warning(management_room_text)
+                    # Confirm in management room
+                    await send_text_to_room(
+                        self.client,
+                        self.room.room_id,
+                        management_room_text,
+                        True,
+                    )
         else:
             logger.debug(f"Skipping {self.event.event_id} which does not look like a reply")
 

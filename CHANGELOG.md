@@ -7,6 +7,9 @@
 * Add config option `mention_only_always_for_groups` to allow treating rooms
   that look like groups (named or with alias) as mention only automatically.
 
+* Allow editing outbound replies. Editing the previously sent `!reply` message
+  will send the new content as an edit replacing the previously sent content. ([issue](https://github.com/elokapina/middleman/issues/12))
+
 ### Fixed
 
 * Ensure case is ignored when looking for display name mentions ([issue](https://github.com/elokapina/middleman/issues/21))
