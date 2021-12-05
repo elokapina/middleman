@@ -104,7 +104,8 @@ class Callbacks(object):
 
         logger.debug(
             f"Bot message received for room {room.display_name} | "
-            f"{room.user_name(event.sender)}: {msg}"
+            f"{room.user_name(event.sender)} (named: {room.is_named}, name: {room.name}, "
+            f"alias: {room.canonical_alias}): {msg}"
         )
 
         # Process as message if in a public room without command prefix

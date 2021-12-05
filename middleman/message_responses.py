@@ -126,11 +126,11 @@ class Message(object):
         else:
             logger.debug(f"Skipping {self.event.event_id} which does not look like a reply")
 
-    def is_mention_only_room(self, identifiers: List[str], is_group: bool) -> bool:
+    def is_mention_only_room(self, identifiers: List[str], is_named: bool) -> bool:
         """
         Check if this room is only if mentioned.
         """
-        if self.config.mention_only_always_for_groups and is_group:
+        if self.config.mention_only_always_for_groups and is_named:
             return True
         for identifier in identifiers:
             if identifier in self.config.mention_only_rooms:
@@ -151,7 +151,7 @@ class Message(object):
     async def relay_to_management_room(self):
         """Relay to the management room."""
         # First check if we want to relay this
-        if self.is_mention_only_room([self.room.canonical_alias, self.room.room_id], self.room.is_group):
+        if self.is_mention_only_room([self.room.canonical_alias, self.room.room_id], self.room.is_named):
             # Did we get mentioned?
             mentioned = self.config.user_id in get_mentions(self.message_content) or \
                         self.message_content.lower().find(self.config.user_localpart.lower()) > -1
