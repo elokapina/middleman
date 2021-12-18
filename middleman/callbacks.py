@@ -1,7 +1,7 @@
 import logging
 
 # noinspection PyPackageRequirements
-from nio import JoinError
+from nio import JoinError, MatrixRoom, Event
 
 from middleman.bot_commands import Command
 from middleman.chat_functions import send_text_to_room
@@ -29,6 +29,19 @@ class Callbacks(object):
         self.command_prefix = config.command_prefix
         self.received_events = []
         self.welcome_message_sent_to_room = []
+
+    async def decryption_failure(self, room: MatrixRoom, event: Event):
+        """Callback for when an event fails to decrypt."""
+        message = f"Failed to decrypt event {event.event_id} in room {room.name} ({room.canonical_alias} / " \
+                  f"{room.room_id}) from sender {event.sender}."
+        logger.error(message)
+
+        await send_text_to_room(
+            client=self.client,
+            room=self.config.management_room_id,
+            message=message,
+            notice=True,
+        )
 
     def trim_duplicates_caches(self):
         if len(self.received_events) > DUPLICATES_CACHE_SIZE:

@@ -14,6 +14,7 @@ from nio import (
     JoinError,
     LocalProtocolError,
     LoginError,
+    MegolmEvent,
     RoomMemberEvent,
     RoomMessageFormatted,
     RoomMessageNotice,
@@ -71,6 +72,8 @@ async def main():
     client.add_event_callback(callbacks.message, (RoomMessageText, RoomMessageNotice, RoomMessageFormatted))
     # noinspection PyTypeChecker
     client.add_event_callback(callbacks.invite, (InviteMemberEvent,))
+    # noinspection PyTypeChecker
+    client.add_event_callback(callbacks.decryption_failure, (MegolmEvent,))
 
     # Keep trying to reconnect on failure (with some time in-between)
     while True:

@@ -11,6 +11,8 @@
   command is edited, it will be sent out as an edit replacing the original outbound
   reply or message. ([issue](https://github.com/elokapina/middleman/issues/12))
 
+* Failures to decrypt events are now relayed to the management room.
+
 ### Fixed
 
 * Ensure case is ignored when looking for display name mentions ([issue](https://github.com/elokapina/middleman/issues/21))
