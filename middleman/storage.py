@@ -1,7 +1,11 @@
 import importlib
+import json
 import logging
+from dataclasses import asdict
+from typing import Optional, List
 
-from typing import Optional
+# noinspection PyPackageRequirements
+from nio import MegolmEvent
 
 # The latest migration version of the database.
 #
@@ -10,7 +14,8 @@ from typing import Optional
 # the version specified here.
 #
 # When a migration is performed, the `migration_version` table should be incremented.
-latest_migration_version = 3
+
+latest_migration_version = 4
 
 logger = logging.getLogger(__name__)
 
@@ -128,6 +133,12 @@ class Storage(object):
         else:
             self.cursor.execute(*args)
 
+    def get_encrypted_events(self, session_id: str) -> List:
+        self._execute("""
+            select * from encrypted_events where session_id = ?;
+        """, (session_id,))
+        return self.cursor.fetchall()
+
     def get_message_by_management_event_id(self, management_event_id: str) -> Optional[dict]:
         self._execute("SELECT room_id, event_id FROM messages where management_event_id = ?", (management_event_id,))
         row = self.cursor.fetchone()
@@ -136,6 +147,23 @@ class Storage(object):
                 "room_id": row[0],
                 "event_id": row[1],
             }
+
+    def remove_encrypted_event(self, event_id: str):
+        self._execute("""
+            delete from encrypted_events where event_id = ?;
+        """, (event_id,))
+
+    def store_encrypted_event(self, event: MegolmEvent):
+        try:
+            event_dict = asdict(event)
+            event_json = json.dumps(event_dict)
+            self._execute("""
+                insert into encrypted_events
+                    (device_id, event_id, room_id, session_id, event) values
+                    (?, ?, ?, ?, ?)
+            """, (event.device_id, event.event_id, event.room_id, event.session_id, event_json))
+        except Exception as ex:
+            logger.error("Failed to store encrypted event %s: %s" % (event.event_id, ex))
 
     def store_message(self, event_id: str, management_event_id: str, room_id: str):
         self._execute("""

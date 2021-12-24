@@ -1,7 +1,8 @@
+import json
 import logging
 
 # noinspection PyPackageRequirements
-from nio import JoinError, MatrixRoom, Event
+from nio import JoinError, MatrixRoom, Event, RoomKeyEvent, RoomMessageText, MegolmEvent
 
 from middleman.bot_commands import Command
 from middleman.chat_functions import send_text_to_room
@@ -30,11 +31,19 @@ class Callbacks(object):
         self.received_events = []
         self.welcome_message_sent_to_room = []
 
-    async def decryption_failure(self, room: MatrixRoom, event: Event):
+    async def decrypted_callback(self, room_id: str, event: RoomMessageText):
+        if isinstance(event, RoomMessageText):
+            await self.message(self.client.rooms[room_id], event)
+        else:
+            logger.warning(f"Unknown event %s passed to decrypted_callback" % event)
+
+    async def decryption_failure(self, room: MatrixRoom, event: MegolmEvent):
         """Callback for when an event fails to decrypt."""
         message = f"Failed to decrypt event {event.event_id} in room {room.name} ({room.canonical_alias} / " \
-                  f"{room.room_id}) from sender {event.sender}."
-        logger.error(message)
+                  f"{room.room_id}) from sender {event.sender} - storing to retry later."
+        logger.warning(message)
+
+        self.store.store_encrypted_event(event)
 
         await send_text_to_room(
             client=self.client,
@@ -139,7 +148,7 @@ class Callbacks(object):
             await message.process()
 
     async def invite(self, room, event):
-        """Callback for when an invite is received. Join the room specified in the invite"""
+        """Callback for when an invitation is received. Join the room specified in the invite"""
         if self.should_process(event.source.get("event_id")) is False:
             return
         logger.debug(f"Got invite to {room.room_id} from {event.sender}.")
@@ -150,6 +159,39 @@ class Callbacks(object):
             return
 
         logger.info(f"Joined {room.room_id}")
+
+    async def room_key(self, event: RoomKeyEvent):
+        """Callback for ToDevice events like room key events."""
+        events = self.store.get_encrypted_events(event.session_id)
+        logger.info("Got room key event for session %s, matched sessions: %s" % (event.session_id, len(events)))
+        if not events:
+            return
+
+        for encrypted_event in events:
+            try:
+                event_dict = json.loads(encrypted_event["event"])
+                params = event_dict["source"]
+                params["room_id"] = event_dict["room_id"]
+                params["transaction_id"] = event_dict["transaction_id"]
+                megolm_event = MegolmEvent.from_dict(params)
+            except Exception as ex:
+                logger.warning("Failed to restore MegolmEvent for %s: %s" % (encrypted_event["event_id"], ex))
+                continue
+            try:
+                # noinspection PyTypeChecker
+                decrypted = self.client.decrypt_event(megolm_event)
+            except Exception as ex:
+                logger.warning(f"Error decrypting event %s: %s" % (megolm_event.event_id, ex))
+                continue
+            if isinstance(decrypted, Event):
+                logger.info(f"Successfully decrypted stored event %s" % decrypted.event_id)
+                parsed_event = Event.parse_event(decrypted.source)
+                logger.info(f"Parsed event: %s" % parsed_event)
+                self.store.remove_encrypted_event(decrypted.event_id)
+                # noinspection PyTypeChecker
+                await self.decrypted_callback(encrypted_event["room_id"], parsed_event)
+            else:
+                logger.warning(f"Failed to decrypt event %s" % (decrypted.event_id,))
 
     def should_process(self, event_id: str) -> bool:
         logger.debug(f"Callback received event: {event_id}")

@@ -10,16 +10,18 @@ from aiohttp import ClientConnectionError, ServerDisconnectedError
 from nio import (
     AsyncClient,
     AsyncClientConfig,
+    ForwardedRoomKeyEvent, 
     InviteMemberEvent,
     JoinError,
     LocalProtocolError,
     LoginError,
     MegolmEvent,
+    RoomKeyEvent,
     RoomMemberEvent,
     RoomMessageFormatted,
     RoomMessageNotice,
     RoomMessageText,
-    RoomResolveAliasResponse,
+    RoomResolveAliasResponse, 
 )
 
 from middleman.callbacks import Callbacks
@@ -74,6 +76,8 @@ async def main():
     client.add_event_callback(callbacks.invite, (InviteMemberEvent,))
     # noinspection PyTypeChecker
     client.add_event_callback(callbacks.decryption_failure, (MegolmEvent,))
+    # noinspection PyTypeChecker
+    client.add_to_device_callback(callbacks.room_key, (ForwardedRoomKeyEvent, RoomKeyEvent))
 
     # Keep trying to reconnect on failure (with some time in-between)
     while True:
