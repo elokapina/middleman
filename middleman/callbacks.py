@@ -45,12 +45,14 @@ class Callbacks(object):
 
         self.store.store_encrypted_event(event)
 
-        await send_text_to_room(
-            client=self.client,
-            room=self.config.management_room_id,
-            message=message,
-            notice=True,
-        )
+        # Send a message to the management room only if matrix logging is not enabled
+        if not self.config.matrix_logging_room:
+            await send_text_to_room(
+                client=self.client,
+                room=self.config.management_room_id,
+                message=message,
+                notice=True,
+            )
 
     def trim_duplicates_caches(self):
         if len(self.received_events) > DUPLICATES_CACHE_SIZE:
