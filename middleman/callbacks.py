@@ -97,7 +97,7 @@ class Callbacks(object):
         await send_text_to_room(
             self.client,
             self.config.management_room_id,
-            f"I have joined room {room.display_name} (`{room.room_id}`) after being invited.",
+            f"I have joined room {room.display_name} (`{room.room_id}`).",
             True,
         )
 
