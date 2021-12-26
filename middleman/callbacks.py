@@ -66,6 +66,10 @@ class Callbacks(object):
 
             event (nio.events.room_events.RoomMemberEvent): The event
         """
+        if self.config.matrix_logging_room and room.room_id == self.config.matrix_logging_room:
+            # Don't react to anything in the logging room
+            return
+
         self.trim_duplicates_caches()
         if self.should_process(event.event_id) is False:
             return
