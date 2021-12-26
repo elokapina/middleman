@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-import asyncio
 import logging
-import sys
 from time import sleep
 
 # noinspection PyPackageRequirements
@@ -31,16 +29,7 @@ from middleman.storage import Storage
 logger = logging.getLogger(__name__)
 
 
-async def main():
-    # Read config file
-
-    # A different config file path can be specified as the first command line argument
-    if len(sys.argv) > 1:
-        config_path = sys.argv[1]
-    else:
-        config_path = "config.yaml"
-    config = Config(config_path)
-
+async def main(config: Config):
     # Configure the database
     store = Storage(config.database)
 
@@ -149,6 +138,3 @@ async def main():
         finally:
             # Make sure to close the client connection on disconnect
             await client.close()
-
-
-asyncio.get_event_loop().run_until_complete(main())
