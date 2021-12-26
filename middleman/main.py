@@ -10,7 +10,7 @@ from aiohttp import ClientConnectionError, ServerDisconnectedError
 from nio import (
     AsyncClient,
     AsyncClientConfig,
-    ForwardedRoomKeyEvent, 
+    ForwardedRoomKeyEvent,
     InviteMemberEvent,
     JoinError,
     LocalProtocolError,
@@ -21,13 +21,12 @@ from nio import (
     RoomMessageFormatted,
     RoomMessageNotice,
     RoomMessageText,
-    RoomResolveAliasResponse, 
+    RoomResolveAliasResponse,
 )
 
 from middleman.callbacks import Callbacks
 from middleman.config import Config
 from middleman.storage import Storage
-from middleman.utils import with_ratelimit
 
 logger = logging.getLogger(__name__)
 
@@ -114,7 +113,7 @@ async def main():
                 # Login succeeded!
 
             # Join the management room or fail
-            response = await with_ratelimit(client, "join", config.management_room)
+            response = await client.join(config.management_room)
             if type(response) == JoinError:
                 logger.fatal("Could not join the management room, aborting.")
                 break
@@ -124,12 +123,20 @@ async def main():
             # Resolve management room ID if not known
             if config.management_room.startswith('#'):
                 # Resolve the room ID
-                response = await with_ratelimit(client, "room_resolve_alias", config.management_room)
+                response = await client.room_resolve_alias(config.management_room)
                 if type(response) == RoomResolveAliasResponse:
                     config.management_room_id = response.room_id
                 else:
                     logger.fatal("Could not resolve the management room ID from alias, aborting")
                     break
+
+            # Try join the logging room if configured
+            if config.matrix_logging_room and config.matrix_logging_room != config.management_room_id:
+                response = await client.join(config.matrix_logging_room)
+                if type(response) == JoinError:
+                    logger.warning("Could not join the logging room")
+                else:
+                    logger.info(f"Logging room membership is good")
 
             logger.info(f"Logged in as {config.user_id}")
             await client.sync_forever(timeout=30000, full_state=True)

@@ -5,6 +5,8 @@ import sys
 from typing import Any, List
 
 import yaml
+# noinspection PyPackageRequirements
+from aiolog import matrix
 
 from middleman.errors import ConfigError
 
@@ -102,6 +104,22 @@ class Config(object):
 
         self.command_prefix = self._get_cfg(["command_prefix"], default="!c") + " "
 
+        # Matrix logging
+        matrix_logging_enabled = self._get_cfg(["logging", "matrix_logging", "enabled"], default=False)
+        self.matrix_logging_room = None
+        if matrix_logging_enabled:
+            if not self.user_token:
+                logger.warning("Not setting up Matrix logging - requires user access token to be set")
+            else:
+                self.matrix_logging_room = self._get_cfg(["logging", "matrix_logging", "room"], required=True)
+                handler = matrix.Handler(
+                    homeserver_url=self.homeserver_url,
+                    access_token=self.user_token,
+                    room_id=self.matrix_logging_room,
+                )
+                handler.setFormatter(formatter)
+                logger.addHandler(handler)
+
         # Middleman specific config
         self.management_room = self._get_cfg(["middleman", "management_room"], required=True)
         self.management_room_id = self.management_room if self.management_room.startswith("!") else None
@@ -122,7 +140,7 @@ class Config(object):
             ConfigError: If required is specified and the object is not found
                 (and there is no default value provided), this error will be raised
         """
-        # Sift through the the config until we reach our option
+        # Shift through the config until we reach our option
         config = self.config
         for name in path:
             config = config.get(name)

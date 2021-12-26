@@ -15,6 +15,8 @@
   later. When keys are received later matching any stored encrypted events, a new attempt
   will be made to decrypt them.
 
+* Add possibility to log to a Matrix room.
+
 ### Fixed
 
 * Ensure case is ignored when looking for display name mentions ([issue](https://github.com/elokapina/middleman/issues/21))
