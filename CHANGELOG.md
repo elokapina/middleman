@@ -11,7 +11,9 @@
   command is edited, it will be sent out as an edit replacing the original outbound
   reply or message. ([issue](https://github.com/elokapina/middleman/issues/12))
 
-* Failures to decrypt events are now relayed to the management room.
+* When receiving an event the bot cannot decrypt, the event will now be stored for
+  later. When keys are received later matching any stored encrypted events, a new attempt
+  will be made to decrypt them.
 
 ### Fixed
 
