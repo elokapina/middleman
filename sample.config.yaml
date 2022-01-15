@@ -81,3 +81,11 @@ logging:
   console_logging:
     # Whether logging to the console is enabled
     enabled: true
+  matrix_logging:
+    # Whether logging to Matrix is enabled.
+    # Note! User access token must be specified when using Matrix logging.
+    enabled: false
+    # Room ID
+    # Don't forget to invite the bot to this room.
+    # This can also be the same as the management room, if wanted.
+    room: !logs:example.com

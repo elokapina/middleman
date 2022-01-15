@@ -32,6 +32,7 @@ setup(
     packages=find_packages(exclude=["tests", "tests.*"]),
     install_requires=[
         "commonmark>=0.9.1",
+        "aiolog @ git+https://github.com/jaywink/aiolog.git@matrix-handler#egg=aiolog",
         "matrix-nio[e2e]>=0.18.0",
         "PyYAML>=5.1.2",
     ],
@@ -47,7 +48,6 @@ setup(
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
