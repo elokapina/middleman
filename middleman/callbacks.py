@@ -2,7 +2,7 @@ import json
 import logging
 
 # noinspection PyPackageRequirements
-from nio import JoinError, MatrixRoom, Event, RoomKeyEvent, RoomMessageText, MegolmEvent
+from nio import JoinError, MatrixRoom, Event, RoomKeyEvent, RoomMessageText, MegolmEvent, LocalProtocolError
 
 from middleman.bot_commands import Command
 from middleman.chat_functions import send_text_to_room
@@ -43,7 +43,14 @@ class Callbacks(object):
                   f"{room.room_id}) from sender {event.sender} - storing to retry later."
         logger.warning(message)
 
+        # Store for later
         self.store.store_encrypted_event(event)
+
+        # Send a request for the key
+        try:
+            await self.client.request_room_key(event)
+        except LocalProtocolError as ex:
+            logger.warning(f"Failed to request room key for event {event.event_id}: {ex}")
 
         # Send a message to the management room only if matrix logging is not enabled
         if not self.config.matrix_logging_room:
