@@ -25,6 +25,9 @@
 
 * Management room commands now ignore any reply prefix on the message, allowing fixing command typos.
 
+* Force `charset_normalizer` dependency logs to `warning` level to avoid spammy info
+  logs about probing the chaos when the Matrix server is unavailable.
+
 ## v0.2.0 - 2021-08-20
 
 ### Added
