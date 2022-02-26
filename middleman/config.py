@@ -10,10 +10,12 @@ from aiolog import matrix
 
 from middleman.errors import ConfigError
 
+# Prevent debug messages from peewee lib
 logger = logging.getLogger()
-logging.getLogger("peewee").setLevel(
-    logging.INFO
-)  # Prevent debug messages from peewee lib
+logging.getLogger("peewee").setLevel(logging.INFO)
+# Prevent info messages from charset_normalizer which seems to output
+# lots of weird log lines about probing the chaos if Synapse goes away for a sec
+logging.getLogger("charset_normalizer").setLevel(logging.WARNING)
 
 
 class Config(object):

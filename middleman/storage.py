@@ -15,7 +15,7 @@ from nio import MegolmEvent
 #
 # When a migration is performed, the `migration_version` table should be incremented.
 
-latest_migration_version = 4
+latest_migration_version = 5
 
 logger = logging.getLogger(__name__)
 
@@ -135,9 +135,35 @@ class Storage(object):
 
     def get_encrypted_events(self, session_id: str) -> List:
         self._execute("""
-            select * from encrypted_events where session_id = ?;
+            select id, device_id, room_id, session_id, event, user_id from encrypted_events where session_id = ?;
         """, (session_id,))
-        return self.cursor.fetchall()
+        events = self.cursor.fetchall()
+        return [
+            {
+                "id": row[0],
+                "device_id": row[1],
+                "room_id": row[2],
+                "session_id": row[3],
+                "event": row[4],
+                "user_id": row[5],
+            } for row in events
+        ]
+
+    def get_encrypted_events_for_user(self, user_id: str) -> List:
+        self._execute("""
+            select id, device_id, room_id, session_id, event, user_id from encrypted_events where user_id = ?;
+        """, (user_id,))
+        events = self.cursor.fetchall()
+        return [
+            {
+                "id": row[0],
+                "device_id": row[1],
+                "room_id": row[2],
+                "session_id": row[3],
+                "event": row[4],
+                "user_id": row[5],
+            } for row in events
+        ]
 
     def get_message_by_management_event_id(self, management_event_id: str) -> Optional[dict]:
         self._execute("SELECT room_id, event_id FROM messages where management_event_id = ?", (management_event_id,))
@@ -159,9 +185,9 @@ class Storage(object):
             event_json = json.dumps(event_dict)
             self._execute("""
                 insert into encrypted_events
-                    (device_id, event_id, room_id, session_id, event) values
-                    (?, ?, ?, ?, ?)
-            """, (event.device_id, event.event_id, event.room_id, event.session_id, event_json))
+                    (device_id, event_id, room_id, session_id, event, user_id) values
+                    (?, ?, ?, ?, ?, ?)
+            """, (event.device_id, event.event_id, event.room_id, event.session_id, event_json, event.sender))
         except Exception as ex:
             logger.error("Failed to store encrypted event %s: %s" % (event.event_id, ex))
 

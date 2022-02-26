@@ -2,7 +2,10 @@ import json
 import logging
 
 # noinspection PyPackageRequirements
-from nio import JoinError, MatrixRoom, Event, RoomKeyEvent, RoomMessageText, MegolmEvent
+from nio import (
+    JoinError, MatrixRoom, Event, RoomKeyEvent, RoomMessageText, MegolmEvent, LocalProtocolError,
+    RoomKeyRequestError,
+)
 
 from middleman.bot_commands import Command
 from middleman.chat_functions import send_text_to_room
@@ -40,17 +43,37 @@ class Callbacks(object):
     async def decryption_failure(self, room: MatrixRoom, event: MegolmEvent):
         """Callback for when an event fails to decrypt."""
         message = f"Failed to decrypt event {event.event_id} in room {room.name} ({room.canonical_alias} / " \
-                  f"{room.room_id}) from sender {event.sender} - storing to retry later."
+                  f"{room.room_id}) from {event.sender} (session {event.session_id} - decrypting " \
+                  f"if keys arrive."
         logger.warning(message)
 
+        # Store for later
         self.store.store_encrypted_event(event)
 
-        # Send a message to the management room only if matrix logging is not enabled
-        if not self.config.matrix_logging_room:
+        waiting_for_keys = self.store.get_encrypted_events_for_user(event.sender)
+        logger.info(
+            "Waiting to decrypt %s events from sender %s",
+            len(waiting_for_keys), event.sender,
+        )
+
+        # Send a request for the key
+        response = None
+        try:
+            response = await self.client.request_room_key(event)
+        except LocalProtocolError as ex:
+            if str(ex) != "A key sharing request is already sent out for this session id.":
+                logger.warning(f"Failed to request room key for event {event.event_id}: {ex}")
+        if isinstance(response, RoomKeyRequestError):
+            logger.warning("RoomKeyRequestError: %s (%s)", response.message, response.status_code)
+
+        # Send a message to the management room if
+        # * matrix logging is not enabled
+        # * room is not named (ie dm normally)
+        if not self.config.matrix_logging_room or not room.is_named:
             await send_text_to_room(
                 client=self.client,
                 room=self.config.management_room_id,
-                message=message,
+                message=f"{message} Warning! The room is a direct message.",
                 notice=True,
             )
 
@@ -174,7 +197,20 @@ class Callbacks(object):
     async def room_key(self, event: RoomKeyEvent):
         """Callback for ToDevice events like room key events."""
         events = self.store.get_encrypted_events(event.session_id)
-        logger.info("Got room key event for session %s, matched sessions: %s" % (event.session_id, len(events)))
+        waiting_for_keys = self.store.get_encrypted_events_for_user(event.sender)
+        if len(events):
+            log_func = logger.info
+        else:
+            log_func = logger.debug
+        log_func(
+            "Got room key event for session %s, user %s, matched sessions: %s",
+            event.session_id, event.sender, len(events),
+        )
+        log_func(
+            "Waiting to decrypt %s events from sender %s",
+            len(waiting_for_keys), event.sender,
+        )
+
         if not events:
             return
 
@@ -186,28 +222,28 @@ class Callbacks(object):
                 params["transaction_id"] = event_dict["transaction_id"]
                 megolm_event = MegolmEvent.from_dict(params)
             except Exception as ex:
-                logger.warning("Failed to restore MegolmEvent for %s: %s" % (encrypted_event["event_id"], ex))
+                logger.warning("Failed to restore MegolmEvent for %s: %s", encrypted_event["event_id"], ex)
                 continue
             try:
                 # noinspection PyTypeChecker
                 decrypted = self.client.decrypt_event(megolm_event)
             except Exception as ex:
-                logger.warning(f"Error decrypting event %s: %s" % (megolm_event.event_id, ex))
+                logger.warning("Error decrypting event %s: %s", megolm_event.event_id, ex)
                 continue
             if isinstance(decrypted, Event):
-                logger.info(f"Successfully decrypted stored event %s" % decrypted.event_id)
+                logger.info("Successfully decrypted stored event %s", decrypted.event_id)
                 parsed_event = Event.parse_event(decrypted.source)
-                logger.info(f"Parsed event: %s" % parsed_event)
+                logger.info("Parsed event: %s", parsed_event)
                 self.store.remove_encrypted_event(decrypted.event_id)
                 # noinspection PyTypeChecker
                 await self.decrypted_callback(encrypted_event["room_id"], parsed_event)
             else:
-                logger.warning(f"Failed to decrypt event %s" % (decrypted.event_id,))
+                logger.warning("Failed to decrypt event %s", decrypted.event_id)
 
     def should_process(self, event_id: str) -> bool:
-        logger.debug(f"Callback received event: {event_id}")
+        logger.debug("Callback received event: %s", event_id)
         if event_id in self.received_events:
-            logger.debug(f"Skipping {event_id} as it's already processed")
+            logger.debug("Skipping %s as it's already processed", event_id)
             return False
         self.received_events.insert(0, event_id)
         return True
