@@ -135,7 +135,7 @@ class Command(object):
             return
 
         if len(self.args) < 2:
-            await send_text_to_room(self.client, self.room.room_id, commands_help.COMMAND_WRITE)
+            await send_text_to_room(self.client, self.room.room_id, commands_help.COMMAND_MWRITE)
             return
 
         replaces = get_replaces(self.event)
