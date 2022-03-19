@@ -145,7 +145,7 @@ class Command(object):
             if massage:
                 replaces_event_id = massage["event_id"]
 
-        room = "!wDdSEggQGjvNqWJGAO:elokapina.fi"
+        room = ""
         # Remove the command
         text = self.command[7:]
         # Remove the room
