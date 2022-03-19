@@ -131,7 +131,17 @@ class Config(object):
         self.mention_only_always_for_named = self._get_cfg(
             ["middleman", "mention_only_always_for_named"], required=False, default=False,
         )
-
+        # Mass message sending
+        self.mass_1 = self._get_cfg(["massages", "mass_1"])
+        self.mass_2 = self._get_cfg(["massages", "mass_2"])
+        self.mass_3 = self._get_cfg(["massages", "mass_3"])
+        self.mass_4 = self._get_cfg(["massages", "mass_4"])
+        self.mass_5 = self._get_cfg(["massages", "mass_5"])
+        self.mass_6 = self._get_cfg(["massages", "mass_6"])
+        self.mass_7 = self._get_cfg(["massages", "mass_7"])
+        self.mass_8 = self._get_cfg(["massages", "mass_8"])
+        self.mass_9 = self._get_cfg(["massages", "mass_9"])
+        self.mass_10 = self._get_cfg(["massages", "mass_10"])
     def _get_cfg(
         self, path: List[str], default: Any = None, required: bool = True,
     ) -> Any:
