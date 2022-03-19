@@ -173,6 +173,14 @@ class Storage(object):
                 "room_id": row[0],
                 "event_id": row[1],
             }
+    def get_massage_by_management_event_id(self, management_event_id: str) -> Optional[dict]:
+        self._execute("SELECT room_id, event_id FROM massages where management_event_id = ?", (management_event_id,))
+        row = self.cursor.fetchone()
+        if row:
+            return {
+                "room_id": row[0],
+                "event_id": row[1],
+            }
 
     def remove_encrypted_event(self, event_id: str):
         self._execute("""
@@ -194,4 +202,8 @@ class Storage(object):
     def store_message(self, event_id: str, management_event_id: str, room_id: str):
         self._execute("""
             insert into messages (event_id, management_event_id, room_id) values (?, ?, ?)
+        """, (event_id, management_event_id, room_id))
+    def store_massage(self, event_id: str, management_event_id: str, room_id: str):
+        self._execute("""
+            insert into massages (event_id, management_event_id, room_id) values (?, ?, ?)
         """, (event_id, management_event_id, room_id))
