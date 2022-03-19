@@ -52,7 +52,17 @@ middleman:
   # to rooms with a large amount of messages for support needs, for example.
   # When "mention_only_always_for_named" is set to true, this has no effect.
   mention_only_rooms: []
-
+massages:
+  mass_1: ""
+  mass_2: ""
+  mass_3: ""
+  mass_4: ""
+  mass_5: ""
+  mass_6: ""
+  mass_7: ""
+  mass_8: ""
+  mass_9: ""
+  mass_10: ""
 storage:
   # The database connection string
   # For SQLite3, this would look like:
