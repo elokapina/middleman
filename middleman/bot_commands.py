@@ -134,24 +134,21 @@ class Command(object):
             # Only allow sending messages from the management room
             return
 
-        if len(self.args) < 2:
-            await send_text_to_room(self.client, self.room.room_id, commands_help.COMMAND_MWRITE)
-            return
-
         replaces = get_replaces(self.event)
         replaces_event_id = None
         if replaces:
             massage = self.store.get_massage_by_management_event_id(replaces)
             if massage:
                 replaces_event_id = massage["event_id"]
-
-        room = ""
-        # Remove the command
-        text = self.command[7:]
-        # Remove the room
-        text = text.replace(room, "", 1)
-        # Strip the leading spaces
-        text = text.strip()
+                
+        text = self.args[0]
+        if text == "1":
+            texti = self.config.mess_1
+            await self.massage1(replaces_event_id, texti)
+        elif text == "2":
+            texti = self.config.mess_2
+            await self.massage1(replaces_event_id, texti)
+    async def massage1(self, replaces_event_id, text):
         await send_text_to_room(self.client, self.config.mass_1, text, False, replaces_event_id=replaces_event_id)
         await send_text_to_room(self.client, self.config.mass_2, text, False, replaces_event_id=replaces_event_id)
         await send_text_to_room(self.client, self.config.mass_3, text, False, replaces_event_id=replaces_event_id)
@@ -162,23 +159,3 @@ class Command(object):
         await send_text_to_room(self.client, self.config.mass_8, text, False, replaces_event_id=replaces_event_id)
         await send_text_to_room(self.client, self.config.mass_9, text, False, replaces_event_id=replaces_event_id)
         await send_text_to_room(self.client, self.config.mass_10, text, False, replaces_event_id=replaces_event_id)
-        response = await send_text_to_room(self.client, room, text, False, replaces_event_id=replaces_event_id)
-
-        if type(response) == RoomSendResponse and response.event_id:
-            self.store.store_massage(
-                event_id=response.event_id,
-                management_event_id=self.event.event_id,
-                room_id=room,
-            )
-            if replaces_event_id:
-                logger.info(f"Processed editing message in room {room}")
-                await send_text_to_room(self.client, self.room.room_id, f"Message was edited in {room}")
-            else:
-                logger.info(f"Processed sending message to room {room}")
-                await send_text_to_room(self.client, self.room.room_id, f"Message was delivered to {room}")
-            return
-
-        error_massage = response if type(response == str) else getattr(response, "message", "Unknown error")
-        await send_text_to_room(
-            self.client, self.room.room_id, f"Failed to deliver message to {room}! Error: {error_massage}",
-        )
