@@ -63,6 +63,10 @@ massages:
   mass_8: ""
   mass_9: ""
   mass_10: ""
+  # first message (send using !middleman masasge 1)
+  mess_1: ""
+  # second message (send using !middleman masasge 2)
+  mess_2: ""
 storage:
   # The database connection string
   # For SQLite3, this would look like:
