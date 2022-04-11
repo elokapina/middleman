@@ -3,10 +3,9 @@ import os
 import re
 import sys
 from typing import Any, List
-
+from aiolog import matrix
 import yaml
 # noinspection PyPackageRequirements
-from aiolog import matrix
 
 from middleman.errors import ConfigError
 
@@ -142,6 +141,8 @@ class Config(object):
         self.mass_8 = self._get_cfg(["massages", "mass_8"])
         self.mass_9 = self._get_cfg(["massages", "mass_9"])
         self.mass_10 = self._get_cfg(["massages", "mass_10"])
+        self.mess_1 = self._get_cfg(["massages", "mess_1"])
+        self.mess_2 = self._get_cfg(["massages", "mess_2"])
     def _get_cfg(
         self, path: List[str], default: Any = None, required: bool = True,
     ) -> Any:
