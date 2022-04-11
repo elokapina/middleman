@@ -63,9 +63,9 @@ massages:
   mass_8: ""
   mass_9: ""
   mass_10: ""
-  # first message (send using !middleman masasge 1)
+  # first message (send using !middleman massage 1)
   mess_1: ""
-  # second message (send using !middleman masasge 2)
+  # second message (send using !middleman massage 2)
   mess_2: ""
 storage:
   # The database connection string
