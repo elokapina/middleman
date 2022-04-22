@@ -17,6 +17,10 @@
 
 * Add possibility to log to a Matrix room.
 
+### Changed
+
+* Don't send a welcome message to non-dm rooms on join.
+
 ### Fixed
 
 * Ensure case is ignored when looking for display name mentions ([issue](https://github.com/elokapina/middleman/issues/21))
