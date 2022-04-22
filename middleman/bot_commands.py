@@ -148,6 +148,9 @@ class Command(object):
         elif text == "2":
             texti = self.config.mess_2
             await self.massage1(replaces_event_id, texti)
+        else:
+            texti = text
+            await self.massage1(replaces_event_id, texti)
     async def massage1(self, replaces_event_id, text):
         await send_text_to_room(self.client, self.config.mass_1, text, False, replaces_event_id=replaces_event_id)
         await send_text_to_room(self.client, self.config.mass_2, text, False, replaces_event_id=replaces_event_id)
