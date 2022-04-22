@@ -4,7 +4,7 @@ import logging
 # noinspection PyPackageRequirements
 from nio import (
     JoinError, MatrixRoom, Event, RoomKeyEvent, RoomMessageText, MegolmEvent, LocalProtocolError,
-    RoomKeyRequestError,
+    RoomKeyRequestError, RoomMemberEvent,
 )
 
 from middleman.bot_commands import Command
@@ -83,7 +83,7 @@ class Callbacks(object):
         if len(self.welcome_message_sent_to_room) > DUPLICATES_CACHE_SIZE:
             self.welcome_message_sent_to_room = self.welcome_message_sent_to_room[:DUPLICATES_CACHE_SIZE]
 
-    async def member(self, room, event):
+    async def member(self, room: Matrix, event: RoomMemberEvent):
         """Callback for when a room member event is received.
 
         Args:
@@ -112,7 +112,7 @@ class Callbacks(object):
             return
 
         # Send welcome message if configured
-        if self.config.welcome_message:
+        if self.config.welcome_message and room.is_group():
             if room.room_id in self.welcome_message_sent_to_room:
                 logger.debug(f"Not sending welcome message to room {room.room_id} - it's been sent already!")
                 return
