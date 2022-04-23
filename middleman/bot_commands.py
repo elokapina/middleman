@@ -141,7 +141,7 @@ class Command(object):
             if massage:
                 replaces_event_id = massage["event_id"]
                 
-        text = self.args[0]
+        text = self.args[0:]
         if text == "1":
             texti = self.config.mess_1
             await self.massage1(replaces_event_id, texti)
