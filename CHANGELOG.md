@@ -32,6 +32,9 @@
 * Force `charset_normalizer` dependency logs to `warning` level to avoid spammy info
   logs about probing the chaos when the Matrix server is unavailable.
 
+* Fix issue where replying to a previous `!reply` would send the reply to the
+  room that the replied to reply originally targeted.
+
 ## v0.2.0 - 2021-08-20
 
 ### Added
