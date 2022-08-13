@@ -131,6 +131,9 @@ class Config(object):
         self.mention_only_always_for_named = self._get_cfg(
             ["middleman", "mention_only_always_for_named"], required=False, default=False,
         )
+        self.confirm_reaction = self._get_cfg(["middleman", "confirm_reaction", "enabled"], required=False, default=False)
+        self.confirm_reaction_success = self._get_cfg(["middleman", "confirm_reaction", "success"], required=False, default="✔️")
+        self.confirm_reaction_fail = self._get_cfg(["middleman", "confirm_reaction", "fail"], required=False, default="❗")
 
     def _get_cfg(
         self, path: List[str], default: Any = None, required: bool = True,

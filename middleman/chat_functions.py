@@ -87,3 +87,51 @@ async def send_text_to_room(
     except (LocalProtocolError, SendRetryError) as ex:
         logger.exception(f"Unable to send message response to {room_id}")
         return f"Failed to send message: {ex}"
+
+
+async def send_reaction(
+    client: AsyncClient, room: str, event_id: str, reaction_key: str
+) -> Union[RoomSendResponse, RoomSendError, str]:
+    """Send reaction to event
+
+    Args:
+        client (nio.AsyncClient): The client to communicate to matrix with
+
+        room (str): The ID or alias of the room to send the message to
+
+        event_id (str): Event ID that this reaction is a reply to.
+
+        reaction_key (str): The reaction symbol
+    """
+    if room.startswith("#"):
+        response = await client.room_resolve_alias(room)
+        if getattr(response, "room_id", None):
+            room_id = response.room_id
+            logger.debug(f"Room '{room}' resolved to {room_id}")
+        else:
+            logger.warning(f"Could not resolve '{room}' to a room ID")
+            return "Unknown room alias"
+    elif room.startswith("!"):
+        room_id = room
+    else:
+        logger.warning(f"Unknown type of room identifier: {room}")
+        return "Unknown room identifier"
+
+    content = {
+        "m.relates_to": {
+            "rel_type": "m.annotation",
+            "event_id": event_id,
+            "key": reaction_key,
+        }
+    }
+
+    try:
+        return await client.room_send(
+            room_id,
+            "m.reaction",
+            content,
+            ignore_unverified_devices=True,
+        )
+    except (LocalProtocolError, SendRetryError) as ex:
+        logger.exception(f"Unable to send reaction to {event_id}")
+        return f"Failed to send reaction: {ex}"
