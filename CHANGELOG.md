@@ -17,6 +17,8 @@
 
 * Add possibility to log to a Matrix room.
 
+* Add config option to replace confirmation messages with reactions. ([issue](https://github.com/elokapina/middleman/issues/9))
+
 ### Changed
 
 * Don't send a welcome message to non-dm rooms on join.
