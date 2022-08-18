@@ -4,7 +4,7 @@ from typing import List
 # noinspection PyPackageRequirements
 from nio import RoomSendResponse, RoomSendError
 
-from middleman.chat_functions import send_text_to_room
+from middleman.chat_functions import send_reaction, send_text_to_room
 from middleman.utils import get_in_reply_to, get_mentions, get_replaces
 
 logger = logging.getLogger(__name__)
@@ -68,24 +68,40 @@ class Message(object):
                         management_event_id=self.event.event_id,
                         room_id=message["room_id"],
                     )
-                    if self.config.anonymise_senders:
+                    if self.config.confirm_reaction:
+                        management_room_text = self.config.confirm_reaction_success
+                    elif self.config.anonymise_senders:
                         management_room_text = "Message delivered back to the sender."
                     else:
                         management_room_text = f"Message delivered back to the sender in room {message['room_id']}."
                     logger.info(f"Message {self.event.event_id} relayed back to the original sender")
                 elif isinstance(response, RoomSendError):
-                    management_room_text = f"Failed to send message back to sender: {response.message}"
+                    if self.config.confirm_reaction:
+                        management_room_text = self.config.confirm_reaction_fail
+                    else:
+                        management_room_text = f"Failed to send message back to sender: {response.message}"
                     logger.warning(management_room_text)
                 else:
-                    management_room_text = f"Failed to send message back to sender: {response}"
+                    if self.config.confirm_reaction:
+                        management_room_text = self.config.confirm_reaction_fail
+                    else:
+                        management_room_text = f"Failed to send message back to sender: {response}"
                     logger.warning(management_room_text)
                 # Confirm in management room
-                await send_text_to_room(
-                    self.client,
-                    self.room.room_id,
-                    management_room_text,
-                    True,
-                )
+                if self.config.confirm_reaction:
+                    await send_reaction(
+                        self.client,
+                        self.room.room_id,
+                        self.event.event_id,
+                        management_room_text
+                    )
+                else:
+                    await send_text_to_room(
+                        self.client,
+                        self.room.room_id,
+                        management_room_text,
+                        True,
+                    )
             else:
                 logger.debug(
                     f"Skipping message {self.event.event_id} which is not a reply to one of our relay messages",

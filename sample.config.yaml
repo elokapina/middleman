@@ -52,6 +52,13 @@ middleman:
   # to rooms with a large amount of messages for support needs, for example.
   # When "mention_only_always_for_named" is set to true, this has no effect.
   mention_only_rooms: []
+  # Reply confirmation with reaction (Optional)
+  confirm_reaction:
+    enabled: false
+    # Success confirmation reaction symbol (Optional)
+    success: "✔️"
+    # Failure confirmation reaction symbol (Optional)
+    fail: "❗"
 
 storage:
   # The database connection string
