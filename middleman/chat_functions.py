@@ -5,6 +5,8 @@ from commonmark import commonmark
 # noinspection PyPackageRequirements
 from nio import SendRetryError, RoomSendResponse, RoomSendError, LocalProtocolError, AsyncClient
 
+from middleman.utils import get_room_id
+
 logger = logging.getLogger(__name__)
 
 
@@ -31,19 +33,10 @@ async def send_text_to_room(
 
         replaces_event_id (str): Optional event ID that this message replaces.
     """
-    if room.startswith("#"):
-        response = await client.room_resolve_alias(room)
-        if getattr(response, "room_id", None):
-            room_id = response.room_id
-            logger.debug(f"Room '{room}' resolved to {room_id}")
-        else:
-            logger.warning(f"Could not resolve '{room}' to a room ID")
-            return "Unknown room alias"
-    elif room.startswith("!"):
-        room_id = room
-    else:
-        logger.warning(f"Unknown type of room identifier: {room}")
-        return "Unknown room identifier"
+    try:
+        room_id = await get_room_id(client, room, logger)
+    except ValueError as ex:
+        return str(ex)
 
     # Determine whether to ping room members or not
     msgtype = "m.notice" if notice else "m.text"
@@ -103,19 +96,10 @@ async def send_reaction(
 
         reaction_key (str): The reaction symbol
     """
-    if room.startswith("#"):
-        response = await client.room_resolve_alias(room)
-        if getattr(response, "room_id", None):
-            room_id = response.room_id
-            logger.debug(f"Room '{room}' resolved to {room_id}")
-        else:
-            logger.warning(f"Could not resolve '{room}' to a room ID")
-            return "Unknown room alias"
-    elif room.startswith("!"):
-        room_id = room
-    else:
-        logger.warning(f"Unknown type of room identifier: {room}")
-        return "Unknown room identifier"
+    try:
+        room_id = await get_room_id(client, room, logger)
+    except ValueError as ex:
+        return str(ex)
 
     content = {
         "m.relates_to": {

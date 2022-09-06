@@ -1,3 +1,4 @@
+from logging import Logger
 import re
 import time
 
@@ -34,6 +35,22 @@ def get_replaces(event: nio.Event) -> Optional[str]:
     rel_type = event.source.get("content", {}).get("m.relates_to", {}).get("rel_type")
     if rel_type == "m.replace":
         return event.source.get("content").get("m.relates_to").get("event_id")
+
+
+async def get_room_id(client: nio.AsyncClient, room: str, logger: Logger) -> str:
+    if room.startswith("#"):
+        response = await client.room_resolve_alias(room)
+        if getattr(response, "room_id", None):
+            logger.debug(f"Room '{room}' resolved to {response.room_id}")
+            return response.room_id
+        else:
+            logger.warning(f"Could not resolve '{room}' to a room ID")
+            raise ValueError(message="Unknown room alias")
+    elif room.startswith("!"):
+        return room
+    else:
+        logger.warning(f"Unknown type of room identifier: {room}")
+        raise ValueError(message="Unknown room identifier")
 
 
 async def with_ratelimit(client, method, *args, **kwargs):
