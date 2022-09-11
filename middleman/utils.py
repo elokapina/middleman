@@ -12,6 +12,8 @@ import nio
 USER_ID_REGEX = r"@[a-z0-9_=\/\-\.]*:(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9]" \
                 r"[A-Za-z0-9\-]*[A-Za-z0-9])*"
 
+reply_regex = re.compile(r"<mx-reply><blockquote>.*</blockquote></mx-reply>(.*)", flags=re.RegexFlag.DOTALL)
+
 
 def get_in_reply_to(event: nio.Event) -> Optional[str]:
     """
@@ -35,6 +37,34 @@ def get_replaces(event: nio.Event) -> Optional[str]:
     rel_type = event.source.get("content", {}).get("m.relates_to", {}).get("rel_type")
     if rel_type == "m.replace":
         return event.source.get("content").get("m.relates_to").get("event_id")
+
+
+def _get_reply_msg(event: nio.Event) -> Optional[str]:
+    # first check if this is edit
+    if get_replaces(event):
+        msg_plain = event.source.get("content", {}).get("m.new_content", {}).get("body")
+        msg_formatted = event.source.get("content", {}).get("m.new_content", {}).get("formatted_body")
+    else:
+        msg_plain = event.source.get("content", {}).get("body")
+        msg_formatted = event.source.get("content", {}).get("formatted_body")
+
+    if msg_formatted and (reply_msg := reply_regex.findall(msg_formatted)):
+        return reply_msg[0]
+    elif msg_formatted:
+        return msg_formatted
+    else:
+        #revert to old method
+        message_parts = msg_plain.split('\n\n', 1)
+        if len(message_parts) > 1:
+            return '\n\n'.join(message_parts[1:])
+        return msg_plain
+
+
+def get_reply_msg(event: nio.Event, reply_to: Optional[str], replaces: Optional[str]) -> Optional[str]:
+    if reply_to or replaces:
+        if reply_section := _get_reply_msg(event):
+            if any([reply_section.startswith(x) for x in ("!reply ", "<p>!reply ")]):
+                return reply_section
 
 
 async def get_room_id(client: nio.AsyncClient, room: str, logger: Logger) -> str:
