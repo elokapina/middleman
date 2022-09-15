@@ -195,3 +195,16 @@ class Storage(object):
         self._execute("""
             insert into messages (event_id, management_event_id, room_id) values (?, ?, ?)
         """, (event_id, management_event_id, room_id))
+
+    def store_dm(self, user_id: str, room_id: str):
+        self._execute("""
+            insert into directs (user_id, room_id) values (?, ?)        
+        """, (user_id, room_id))
+    
+    def get_dm(self, user_id: str) -> room_id:
+        self._execute("SELECT room_id FROM directs where user_id = ?", (user_id,))
+        row = self.cursor.fetchone()
+        if row:
+            return row[0]
+        else:
+            return "0"
