@@ -41,6 +41,8 @@ async def send_text_to_room(
             return "Unknown room alias"
     elif room.startswith("!"):
         room_id = room
+    elif room.startswith("@"):
+        room_id = await self.get_dm(room)
     else:
         logger.warning(f"Unknown type of room identifier: {room}")
         return "Unknown room identifier"
@@ -88,7 +90,15 @@ async def send_text_to_room(
         logger.exception(f"Unable to send message response to {room_id}")
         return f"Failed to send message: {ex}"
 
-
+async def get_dm(client: AsyncClient, user: str): 
+    room_id = self.store.get_dm(user_id=user)
+    if room_id == "0":
+        resp = client.room_create(
+            is_direct=True,
+            invite=[user]
+        )
+        room_id = resp.room_id
+    return room_id
 async def send_reaction(
     client: AsyncClient, room: str, event_id: str, reaction_key: str
 ) -> Union[RoomSendResponse, RoomSendError, str]:
