@@ -19,6 +19,8 @@
 
 * Add config option to replace confirmation messages with reactions. ([issue](https://github.com/elokapina/middleman/issues/9))
 
+* Added support for relaying media. ([issue](https://github.com/elokapina/middleman/pull/26))
+
 ### Changed
 
 * Don't send a welcome message to non-dm rooms on join.

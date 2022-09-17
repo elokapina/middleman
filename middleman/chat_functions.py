@@ -132,7 +132,13 @@ async def send_media_to_room(
 
         room (str): The ID or alias of the room to send the message to
 
+        media_type (str): The media type
+
         body (str): The media body
+
+        media_url (str): The media url
+
+        media_file (dict): The media metadata
 
         media_info (dict): The media url and metadata
 
@@ -142,7 +148,7 @@ async def send_media_to_room(
         room_id = await get_room_id(client, room, logger)
     except ValueError as ex:
         return str(ex)
-    
+
     if not (media_url or media_file):
         logger.warning(f"Empty media url for room identifier: {room}")
         return "Empty media url"

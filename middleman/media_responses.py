@@ -16,6 +16,7 @@ media_name = {
     "m.file": "file",
 }
 
+
 class Media(object):
     def __init__(self, client, store, config, media_type, body, media_url, media_file, media_info, room, event):
         """Initialize a new Media
@@ -52,7 +53,6 @@ class Media(object):
         self.media_file = media_file
         self.media_info = media_info
 
-
     async def handle_management_room_media(self):
         reply_to = get_in_reply_to(self.event)
 
@@ -83,8 +83,11 @@ class Media(object):
                     elif self.config.anonymise_senders:
                         management_room_text = f"{media_name[self.media_type]} delivered back to the sender."
                     else:
-                        management_room_text = f"{media_name[self.media_type]} delivered back to the sender in room {message['room_id']}."
-                    logger.info(f"{media_name[self.media_type]} {self.event.event_id} relayed back to the original sender")
+                        management_room_text = f"{media_name[self.media_type]} delivered back to the sender in " \
+                                               f"room {message['room_id']}."
+                    logger.info(
+                        f"{media_name[self.media_type]} {self.event.event_id} relayed back to the original sender",
+                    )
                 else:
                     if self.config.confirm_reaction:
                         management_room_text = self.config.confirm_reaction_fail
@@ -109,7 +112,8 @@ class Media(object):
                     )
             else:
                 logger.debug(
-                    f"Skipping {media_name[self.media_type]} {self.event.event_id} which is not a reply to one of our relay messages",
+                    f"Skipping {media_name[self.media_type]} {self.event.event_id} "
+                    f"which is not a reply to one of our relay messages",
                 )
         else:
             logger.debug(f"Skipping {self.event.event_id} reply {media_name[self.media_type]}")
@@ -141,15 +145,16 @@ class Media(object):
         # First check if we want to relay this
         if self.is_mention_only_room([self.room.canonical_alias, self.room.room_id], self.room.is_named):
             # skip media in mention only rooms for now
-            logger.debug(f"Skipping {media_name[self.media_type]} %s in room %s as it's set to only relay on mention and we were "
-                         "not mentioned.", self.event.event_id, self.room.room_id)
+            logger.debug(f"Skipping {media_name[self.media_type]} %s in room %s as it's set to "
+                         f"only relay on mention and mentions are not supported for media ",
+                         self.event.event_id, self.room.room_id)
             return
 
         if self.config.anonymise_senders:
             text = f"anonymous sent {media_name[self.media_type]}:"
         else:
-            text = f"{self.event.sender} in {self.room.display_name} (`{self.room.room_id}`) sent {media_name[self.media_type]} " \
-                   f"{self.body}:"
+            text = f"{self.event.sender} in {self.room.display_name} (`{self.room.room_id}`) " \
+                   f"sent {media_name[self.media_type]} {self.body}:"
         response = await send_text_to_room(self.client, self.config.management_room, text, notice=True)
         if type(response) == RoomSendResponse and response.event_id:
             response = await send_media_to_room(
@@ -171,6 +176,8 @@ class Media(object):
                 )
                 logger.info(f"{media_name[self.media_type]} %s relayed to the management room", self.event.event_id)
             else:
-                logger.error(f"Failed to relay {media_name[self.media_type]} %s to the management room", self.event.event_id)
+                logger.error(f"Failed to relay {media_name[self.media_type]} %s to the "
+                             f"management room", self.event.event_id)
         else:
-            logger.error(f"Failed to relay {media_name[self.media_type]} %s to the management room", self.event.event_id)
+            logger.error(f"Failed to relay {media_name[self.media_type]} %s to the "
+                         f"management room", self.event.event_id)

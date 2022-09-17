@@ -225,7 +225,9 @@ class Callbacks(object):
         )
 
         # General media listener
-        media = Media(self.client, self.store, self.config, msgtype, body, media_url, media_file, media_info, room, event)
+        media = Media(
+            self.client, self.store, self.config, msgtype, body, media_url, media_file, media_info, room, event,
+        )
         await media.process()
 
     async def invite(self, room, event):
