@@ -9,6 +9,7 @@ from nio import (
 
 from middleman.bot_commands import Command
 from middleman.chat_functions import send_text_to_room
+from middleman.media_responses import Media
 from middleman.message_responses import Message
 from middleman.utils import with_ratelimit
 
@@ -180,6 +181,52 @@ class Callbacks(object):
             # General message listener
             message = Message(self.client, self.store, self.config, msg, room, event)
             await message.process()
+
+    async def media(self, room, event):
+        """Callback for when a media event is received
+
+        Args:
+            room (nio.rooms.MatrixRoom): The room the event came from
+
+            event (nio.events.room_events.RoomMessageMedia): The event defining the media
+
+        """
+        if self.config.matrix_logging_room and room.room_id == self.config.matrix_logging_room:
+            # Don't react to anything in the logging room
+            return
+
+        self.trim_duplicates_caches()
+        if self.should_process(event.event_id) is False:
+            return
+
+        # Ignore medias from ourselves
+        if event.sender == self.client.user:
+            return
+
+        # Extract media type
+        msgtype = event.source.get("content").get("msgtype")
+
+        # Extract media body
+        body = event.body
+
+        # Extract media url
+        media_url = event.source.get("content").get("url")
+
+        # Extract media file
+        media_file = event.source.get("content").get("file")
+
+        # Extract media info
+        media_info = event.source.get("content").get("info")
+
+        logger.debug(
+            f"Bot media received for room {room.display_name} | "
+            f"{room.user_name(event.sender)} (named: {room.is_named}, name: {room.name}, "
+            f"alias: {room.canonical_alias}): {body}"
+        )
+
+        # General media listener
+        media = Media(self.client, self.store, self.config, msgtype, body, media_url, media_file, media_info, room, event)
+        await media.process()
 
     async def invite(self, room, event):
         """Callback for when an invitation is received. Join the room specified in the invite"""

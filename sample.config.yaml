@@ -59,6 +59,12 @@ middleman:
     success: "✔️"
     # Failure confirmation reaction symbol (Optional)
     fail: "❗"
+  # Relay media replies from management room to original sender directly
+  # When set to true, management room will send back media replies to original sender
+  # When set to false, media replies will not be sent back to original sender because 
+  # we can't normally prefix `!reply` in the message body
+  # (Optiona, default: false)
+  relay_management_media: false
 
 storage:
   # The database connection string
