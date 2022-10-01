@@ -1,17 +1,17 @@
 # To build the image, run `docker build` command from the root of the
 # repository:
 #
-#    docker build -f docker/Dockerfile .
+#    docker build .
 #
 # There is an optional PYTHON_VERSION build argument which sets the
 # version of python to build against. For example:
 #
-#    docker build -f docker/Dockerfile --build-arg PYTHON_VERSION=3.8 .
+#    docker build --build-arg PYTHON_VERSION=3.8 .
 #
 # An optional LIBOLM_VERSION build argument which sets the
 # version of libolm to build against. For example:
 #
-#    docker build -f docker/Dockerfile --build-arg LIBOLM_VERSION=3.1.4 .
+#    docker build --build-arg LIBOLM_VERSION=3.1.4 .
 #
 
 
@@ -30,7 +30,7 @@ FROM docker.io/python:${PYTHON_VERSION}-alpine3.11 as builder
 ##
 
 # Install libolm build dependencies
-ARG LIBOLM_VERSION=3.1.4
+ARG LIBOLM_VERSION=3.2.1
 RUN apk add --no-cache \
     make \
     cmake \
@@ -39,7 +39,9 @@ RUN apk add --no-cache \
     git \
     libffi-dev \
     yaml-dev \
-    python3-dev
+    python3-dev \
+    postgresql-dev \
+    musl-dev
 
 # Build libolm
 #
@@ -49,31 +51,12 @@ RUN apk add --no-cache \
 COPY docker/build_and_install_libolm.sh /scripts/
 RUN /scripts/build_and_install_libolm.sh ${LIBOLM_VERSION} /python-libs
 
-# Install Postgres dependencies
-RUN apk add --no-cache \
-    musl-dev \
-    libpq \
-    postgresql-dev
+RUN mkdir -p /app
 
-# Install python runtime modules. We do this before copying the source code
-# such that these dependencies can be cached
-# This speeds up subsequent image builds when the source code is changed
-RUN mkdir -p /src/middleman/migrations
-COPY middleman/__init__.py /src/middleman/
-COPY README.md middleman-bot /src/
+COPY requirements.txt /app
 
-# Build the dependencies
-COPY setup.py requirements.txt /src/
+WORKDIR /app
 
-WORKDIR /src
-RUN pip install --prefix="/python-libs" --no-warn-script-location -r requirements.txt
-
-# Now copy the source code
-COPY *.py *.md /src/
-COPY middleman/*.py /src/middleman/
-COPY middleman/migrations/*.py /src/middleman/migrations/
-
-# And build the final module
 RUN pip install --prefix="/python-libs" --no-warn-script-location -r requirements.txt
 
 ##
@@ -96,12 +79,10 @@ RUN apk add --no-cache \
     libpq \
     postgresql-dev
 
-# Specify a volume that holds the SQLite3 database,
-# and the matrix-nio store
-VOLUME ["/data"]
+WORKDIR /app
 
-# Specify a volume that holds the config file
-VOLUME ["/config"]
+# Copy app files
+COPY *.py *.md /app/
+COPY middleman/ /app/middleman/
 
-# Start the bot
-ENTRYPOINT ["middleman-bot", "/config/config.yaml"]
+CMD python main.py /config/config.yaml
