@@ -63,8 +63,10 @@ COPY middleman/__init__.py /src/middleman/
 COPY README.md middleman-bot /src/
 
 # Build the dependencies
-COPY setup.py /src/setup.py
-RUN pip install --prefix="/python-libs" --no-warn-script-location "/src/.[postgres]"
+COPY setup.py requirements.txt /src/
+
+WORKDIR /src
+RUN pip install --prefix="/python-libs" --no-warn-script-location -r requirements.txt
 
 # Now copy the source code
 COPY *.py *.md /src/
@@ -72,7 +74,7 @@ COPY middleman/*.py /src/middleman/
 COPY middleman/migrations/*.py /src/middleman/migrations/
 
 # And build the final module
-RUN pip install --prefix="/python-libs" --no-warn-script-location "/src/.[postgres]"
+RUN pip install --prefix="/python-libs" --no-warn-script-location -r requirements.txt
 
 ##
 ## Creating the runtime container

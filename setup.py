@@ -30,21 +30,6 @@ setup(
     url="https://github.com/elokapina/middleman",
     description="Matrix bot to act as a middleman ",
     packages=find_packages(exclude=["tests", "tests.*"]),
-    install_requires=[
-        "commonmark>=0.9.1",
-        "aiolog @ git+https://github.com/jaywink/aiolog.git@matrix-handler#egg=aiolog",
-        "matrix-nio[e2e]>=0.18.0",
-        "PyYAML>=5.1.2",
-    ],
-    extras_require={
-        "postgres": ["psycopg2>=2.8.5"],
-        "dev": [
-            "isort==5.0.4",
-            "flake8==3.8.3",
-            "flake8-comprehensions==3.2.3",
-            "black==19.10b0",
-        ],
-    },
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3 :: Only",

@@ -1,0 +1,5 @@
+commonmark<1
+git+https://github.com/jaywink/aiolog.git@0db27c59a1694857f58c2bae6874fb25c6c6f262#egg=aiolog
+matrix-nio[e2e]<0.21.0
+PyYAML<7
+psycopg2<3

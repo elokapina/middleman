@@ -54,6 +54,18 @@ other non-text messages will not currently be relayed either way.
 
 If you need help or want to otherwise chat, jump to `#middleman:elokapina.fi`!
 
+### Dependencies
+
+* Create a Python 3.8+ virtualenv
+* Do `pip install -U pip setuptools pip-tools`
+* Do `pip-sync`
+
+To update dependencies, do NOT edit `requirements.txt` directly. Any changes go into
+`requirements.in` and then you run `pip-compile`. If you want to upgrade existing
+non-pinned (in `requirements.in`) dependencies, run `pip-compile --upgrade`, keeping
+the ones that you want to update in `requirements.txt` when commiting. See more info
+about `pip-tools` at https://github.com/jazzband/pip-tools
+
 ### Releasing
 
 * Update `CHANGELOG.md`

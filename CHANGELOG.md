@@ -25,6 +25,8 @@
 
 * Don't send a welcome message to non-dm rooms on join.
 
+* Use `pip-tools` to lock dependencies.
+
 ### Fixed
 
 * Ensure case is ignored when looking for display name mentions ([issue](https://github.com/elokapina/middleman/issues/21))
