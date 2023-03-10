@@ -206,5 +206,3 @@ class Storage(object):
         row = self.cursor.fetchone()
         if row:
             return row[0]
-        else:
-            return "0"
