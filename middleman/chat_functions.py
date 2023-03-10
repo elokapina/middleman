@@ -100,6 +100,8 @@ async def get_dm(client: AsyncClient, user: str):
         room_id = resp.room_id
         self.store.store_dm(user_id=user, room_id=room_id)
     return room_id
+
+
 async def send_reaction(
     client: AsyncClient, room: str, event_id: str, reaction_key: str
 ) -> Union[RoomSendResponse, RoomSendError, str]:
