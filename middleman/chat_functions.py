@@ -42,7 +42,7 @@ async def send_text_to_room(
     elif room.startswith("!"):
         room_id = room
     elif room.startswith("@"):
-        room_id = await self.get_dm(room)
+        room_id = await get_dm(client, room)
     else:
         logger.warning(f"Unknown type of room identifier: {room}")
         return "Unknown room identifier"
