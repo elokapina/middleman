@@ -93,7 +93,7 @@ async def send_text_to_room(
 async def get_dm(client: AsyncClient, user: str): 
     room_id = self.store.get_dm(user_id=user)
     if not room_id:
-        resp = client.room_create(
+        resp = await client.room_create(
             is_direct=True,
             invite=[user]
         )
