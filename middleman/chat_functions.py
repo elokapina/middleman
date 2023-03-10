@@ -90,6 +90,7 @@ async def send_text_to_room(
         logger.exception(f"Unable to send message response to {room_id}")
         return f"Failed to send message: {ex}"
 
+
 async def get_dm(client: AsyncClient, user: str): 
     room_id = self.store.get_dm(user_id=user)
     if not room_id:
