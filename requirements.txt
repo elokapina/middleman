@@ -6,7 +6,7 @@
 #
 aiofiles==0.6.0
     # via matrix-nio
-aiohttp==3.9.0
+aiohttp==3.9.2
     # via
     #   aiohttp-socks
     #   matrix-nio
