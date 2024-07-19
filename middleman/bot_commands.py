@@ -44,7 +44,10 @@ class Command(object):
         elif self.command.startswith("message"):
             await self._message()
         else:
-            await self._unknown_command()
+            # Just ignore. Sometimes nio is confused on the room states and we
+            # used to send "sorry, unknown command" messages to massive rooms
+            # as nio thought it was a dm.
+            pass
 
     async def _echo(self):
         """Echo back the command's arguments"""
@@ -69,13 +72,6 @@ class Command(object):
         else:
             text = "Unknown help topic!"
         await send_text_to_room(self.client, self.room.room_id, text)
-
-    async def _unknown_command(self):
-        await send_text_to_room(
-            self.client,
-            self.room.room_id,
-            f"Unknown command '{self.command}'. Try the 'help' command for more information.",
-        )
 
     async def _message(self):
         """
