@@ -108,8 +108,7 @@ async def main(config: Config):
             # Join the management room or fail
             response = await client.join(config.management_room)
             if type(response) == JoinError:
-                logger.fatal("Could not join the management room, aborting.")
-                break
+                raise Exception("Could not join the management room, aborting.")
             else:
                 logger.info(f"Management room membership is good")
 
@@ -120,8 +119,7 @@ async def main(config: Config):
                 if type(response) == RoomResolveAliasResponse:
                     config.management_room_id = response.room_id
                 else:
-                    logger.fatal("Could not resolve the management room ID from alias, aborting")
-                    break
+                    raise Exception("Could not resolve the management room ID from alias, aborting")
 
             # Try join the logging room if configured
             if config.matrix_logging_room and config.matrix_logging_room != config.management_room_id:

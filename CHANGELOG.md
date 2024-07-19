@@ -30,6 +30,8 @@
 * Refactor Dockerfile and rename main launcher from `middleman-bot` to `main.py`.
   This was done to unify the two Elokapina bots, Bubo and Middleman.
 
+* Exit loudly if we fail to join the management room.
+
 ### Fixed
 
 * Ensure case is ignored when looking for display name mentions ([issue](https://github.com/elokapina/middleman/issues/21))
