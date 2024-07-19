@@ -3,17 +3,11 @@
 #
 #    docker build .
 #
-# There is an optional PYTHON_VERSION build argument which sets the
-# version of python to build against. For example:
-#
-#    docker build --build-arg PYTHON_VERSION=3.8 .
-#
 # An optional LIBOLM_VERSION build argument which sets the
 # version of libolm to build against. For example:
 #
 #    docker build --build-arg LIBOLM_VERSION=3.1.4 .
 #
-
 
 ##
 ## Creating a builder container
@@ -22,15 +16,14 @@
 # We use an initial docker container to build all of the runtime dependencies,
 # then transfer those dependencies to the container we're going to ship,
 # before throwing this one away
-ARG PYTHON_VERSION=3.8
-FROM docker.io/python:${PYTHON_VERSION}-alpine3.11 as builder
+FROM docker.io/python:3.10.14-alpine3.20 as builder
 
 ##
 ## Build libolm for matrix-nio e2e support
 ##
 
 # Install libolm build dependencies
-ARG LIBOLM_VERSION=3.2.1
+ARG LIBOLM_VERSION=3.2.10
 RUN apk add --no-cache \
     make \
     cmake \
@@ -65,7 +58,7 @@ RUN pip install --prefix="/python-libs" --no-warn-script-location -r requirement
 
 # Create the container we'll actually ship. We need to copy libolm and any
 # python dependencies that we built above to this container
-FROM docker.io/python:${PYTHON_VERSION}-alpine3.11
+FROM docker.io/python:3.10.14-alpine3.20
 
 # Copy python dependencies from the "builder" container
 COPY --from=builder /python-libs /usr/local

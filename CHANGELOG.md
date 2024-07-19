@@ -36,6 +36,8 @@
 
 * Never send "unknown command" responses to rooms.
 
+* Upgrade Docker image to Python 3.10 and `libolm` 3.2.10
+
 ### Fixed
 
 * Ensure case is ignored when looking for display name mentions ([issue](https://github.com/elokapina/middleman/issues/21))
