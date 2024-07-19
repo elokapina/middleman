@@ -102,7 +102,7 @@ class Command(object):
 
         response = await send_text_to_room(self.client, room, text, False, replaces_event_id=replaces_event_id)
 
-        if type(response) == RoomSendResponse and response.event_id:
+        if isinstance(response) == RoomSendResponse and response.event_id:
             self.store.store_message(
                 event_id=response.event_id,
                 management_event_id=self.event.event_id,
