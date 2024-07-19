@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 async def send_text_to_room(
     client: AsyncClient, room: str, message: str, notice: bool = True, markdown_convert: bool = True,
-    reply_to_event_id: str = None, replaces_event_id: str = None,
+    reply_to_event_id: str = None, replaces_event_id: str = None, notify_room_on_failure: str = None,
 ) -> Union[RoomSendResponse, RoomSendError, str]:
     """Send text to a matrix room
 
@@ -32,6 +32,8 @@ async def send_text_to_room(
         reply_to_event_id (str): Optional event ID that this message is a reply to.
 
         replaces_event_id (str): Optional event ID that this message replaces.
+
+        notify_room_on_failure (str): Optional room ID to notify on failure.
     """
     try:
         room_id = await get_room_id(client, room, logger)
@@ -79,6 +81,18 @@ async def send_text_to_room(
         )
     except (LocalProtocolError, SendRetryError) as ex:
         logger.exception(f"Unable to send message response to {room_id}")
+
+        if notify_room_on_failure:
+            # Try to notify the sender of this failure
+            try:
+                await send_text_to_room(
+                    client=client,
+                    room=notify_room_on_failure,
+                    message="Message did not get delivered due to an error. Please try again.",
+                )
+            except (LocalProtocolError, SendRetryError):
+                logger.exception(f"Failed to notify sender in {notify_room_on_failure} of failed message send")
+
         return f"Failed to send message: {ex}"
 
 

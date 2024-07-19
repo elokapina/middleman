@@ -32,6 +32,8 @@
 
 * Exit loudly if we fail to join the management room.
 
+* Notify sender to try again if we fail to relay a message to the management room.
+
 ### Fixed
 
 * Ensure case is ignored when looking for display name mentions ([issue](https://github.com/elokapina/middleman/issues/21))

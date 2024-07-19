@@ -189,7 +189,13 @@ class Message(object):
         else:
             text = f"{self.event.sender} in {self.room.display_name} (`{self.room.room_id}`): " \
                    f"{self.message_content}".replace("\n", "  \n")
-        response = await send_text_to_room(self.client, self.config.management_room, text, False)
+        response = await send_text_to_room(
+            client=self.client,
+            room=self.config.management_room,
+            message=text,
+            notice=False,
+            notify_room_on_failure=self.room.room_id,
+        )
         if type(response) == RoomSendResponse and response.event_id:
             self.store.store_message(
                 self.event.event_id,
