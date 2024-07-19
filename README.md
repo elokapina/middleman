@@ -74,7 +74,7 @@ about `pip-tools` at https://github.com/jazzband/pip-tools
 * Push the tag
 * Make a GitHub release, copy the changelog for the release there
 * Build a docker image
-  * `docker build -f docker/Dockerfile . -t elokapinaorg/middleman:v<version>`
+  * `docker build . -t elokapinaorg/middleman:v<version>`
   * `docker tag elokapinaorg/middleman:v<version> elokapinaorg/middleman:latest`
 * Push docker images
 * Update topic in `#middleman:elokapina.fi`
