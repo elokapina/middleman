@@ -10,7 +10,7 @@ aiohttp==3.9.5
     # via
     #   aiohttp-socks
     #   matrix-nio
-aiohttp-socks==0.7.1
+aiohttp-socks==0.8.4
     # via matrix-nio
 aiolog @ git+https://github.com/jaywink/aiolog.git@0db27c59a1694857f58c2bae6874fb25c6c6f262
     # via -r requirements.in
@@ -26,7 +26,6 @@ atomicwrites==1.4.1
 attrs==23.2.0
     # via
     #   aiohttp
-    #   aiohttp-socks
     #   jsonschema
     #   referencing
 cachetools==4.2.4
@@ -39,8 +38,6 @@ frozenlist==1.4.1
     # via
     #   aiohttp
     #   aiosignal
-future==0.18.3
-    # via matrix-nio
 h11==0.14.0
     # via matrix-nio
 h2==4.1.0
@@ -55,9 +52,7 @@ jsonschema==4.23.0
     # via matrix-nio
 jsonschema-specifications==2023.12.1
     # via jsonschema
-logbook==1.7.0.post0
-    # via matrix-nio
-matrix-nio[e2e]==0.20.2
+matrix-nio[e2e]==0.24.0
     # via -r requirements.in
 multidict==6.0.5
     # via
