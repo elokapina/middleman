@@ -52,6 +52,8 @@
 * Fix issue where replying to a previous `!reply` would send the reply to the
   room that the replied to reply originally targeted.
 
+* Don't crash if room membership event has no `prev_content` property.
+
 ## v0.2.0 - 2021-08-20
 
 ### Added

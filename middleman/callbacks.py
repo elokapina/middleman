@@ -109,7 +109,9 @@ class Callbacks(object):
             return
 
         # Ignore if we didn't join
-        if event.membership != "join" or event.prev_content.get("membership") == "join":
+        if event.membership != "join" or (
+            hasattr(event, "prev_content") and event.prev_content.get("membership") == "join"
+        ):
             return
 
         # Send welcome message if configured
