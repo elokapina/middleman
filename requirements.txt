@@ -6,7 +6,9 @@
 #
 aiofiles==23.2.1
     # via matrix-nio
-aiohttp==3.9.5
+aiohappyeyeballs==2.3.5
+    # via aiohttp
+aiohttp==3.10.2
     # via
     #   aiohttp-socks
     #   matrix-nio
