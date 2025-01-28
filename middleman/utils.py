@@ -9,8 +9,8 @@ import nio
 
 
 # Domain part from https://stackoverflow.com/a/106223/1489738
-USER_ID_REGEX = r"@[a-z0-9_=\/\-\.]*:(([a-zA-Z0-9]|@[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|@[A-Za-z0-9]" \
-                r"@[A-Za-z0-9\-]*[A-Za-z0-9])*"
+USER_ID_REGEX = r"@[a-z0-9_=\/\-\.]*:(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9]" \
+                r"[A-Za-z0-9\-]*[A-Za-z0-9])*"
 
 reply_regex = re.compile(r"<mx-reply><blockquote>.*</blockquote></mx-reply>(.*)", flags=re.RegexFlag.DOTALL)
 
